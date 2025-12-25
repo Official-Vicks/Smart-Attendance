@@ -64,6 +64,7 @@ CSS
 
 JavaScript (Vanilla)
 
+
 📁 Project Structure
 attendance_app/
 ├── backend/
@@ -89,10 +90,15 @@ attendance_app/
 │
 ├── PROJECT_PROGRESS.md
 └── README.md
+
+
 ⚙️ Installation & Setup
+
+
 1️⃣ Clone the Repository
 git clone https://github.com/your-username/attendance_app.git
 cd attendance_app
+
 
 2️⃣ Backend Setup
 cd backend
@@ -127,6 +133,8 @@ http://127.0.0.1:8000
 Swagger UI:
 
 http://127.0.0.1:8000/docs
+
+
 3️⃣ Frontend Setup
 
 Open the frontend files using Live Server or any static server:
