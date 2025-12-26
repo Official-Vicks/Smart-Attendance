@@ -202,5 +202,5 @@ Known issues
 
 👤 Author
 
-Official Vicks
+Chidiebere Victory
 Software Developer
