@@ -1,0 +1,93 @@
+/* --- Warm grey theme --- */
+:root {
+  --warm-grey: #f8f7f4;
+  --warm-grey-dark: #4e4e4e;
+  --accent-grey: #d9d4cf;
+}
+
+body {
+  background-color: var(--warm-grey);
+  color: var(--warm-grey-dark);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.navbar {
+  background-color: var(--accent-grey);
+}
+
+.navbar-brand,
+.nav-link,
+.btn-light {
+  color: var(--warm-grey-dark) !important;
+}
+
+.btn-primary {
+  background-color: var(--warm-grey-dark);
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: #3d3d3d;
+}
+
+/* Hero section */
+#intro-section {
+  background: linear-gradient(to right, #d8d3cd, #f0efeb);
+  color: #2d2d2d;
+  padding: 6rem 1rem;
+}
+
+#intro-section h1 {
+  font-weight: 700;
+}
+
+#about-section {
+  background-color: #ffffff;
+}
+
+/* Card styling */
+.card {
+  border-radius: 1rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Signup form */
+#signup-section {
+  background: #f3f2f0;
+}
+
+#signupForm {
+  border-radius: 1rem;
+  background-color: #ffffff;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+}
+
+#signupForm label {
+  font-weight: 500;
+}
+
+footer {
+  background-color: var(--accent-grey);
+  color: var(--warm-grey-dark);
+}
+
+@media (max-width: 768px) {
+  #intro-section {
+    text-align: center;
+    padding: 4rem 1rem;
+  }
+}
+
+#loginCard {
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+#loginCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
