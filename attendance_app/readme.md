@@ -49,4 +49,3 @@ See PROJECT_PROGRESS.md for detailed updates.
 
 👤 Author
 Chidiebere Victory
-Official VicksCh
