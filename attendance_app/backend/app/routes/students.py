@@ -7,6 +7,7 @@ Routes for student dashboard, profile, and attendance records.
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from datetime import date
 from typing import List
 from app import schemas, crud, models
 from app.database import get_db
@@ -73,6 +74,9 @@ def verify_session_code(
     """Student enters the generated attendance code to access session"""
 
     session = crud.get_session_by_code(db, session_code)
+
+    if not session.is_active or session.date < date.today():
+        raise HTTPException(status_code=400, detail="Session is expired")
 
     if not session:
         raise HTTPException(status_code=404, detail="Invalid or expired session code")
