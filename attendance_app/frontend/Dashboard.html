@@ -56,7 +56,7 @@
             <div class="card-body">
               <h4 class="fw-bold mb-3">Create Attendance Session</h4>
 
-              <form id="sessionForm" action="javascript:void(0);">
+              <form id="sessionForm">
                 <div class="row mb-3">
                   <div class="col-md-4">
                     <label class="form-label">Course Code</label>
@@ -67,6 +67,7 @@
                       required
                     />
                   </div>
+
                   <div class="col-md-4">
                     <label class="form-label">Course Title</label>
                     <input
@@ -90,11 +91,7 @@
                   </div>
                 </div>
 
-                <button
-                  type="button"
-                  class="btn btn-primary"
-                  id="generateSessionBtn"
-                >
+                <button type="submit" class="btn btn-primary">
                   Generate Session Code
                 </button>
               </form>
@@ -117,7 +114,8 @@
               <thead class="table-dark">
                 <tr>
                   <th>#</th>
-                  <th>Student</th>
+                  <th>Student ID</th>
+                  <th>Student Name</th>
                   <th>Course</th>
                   <th>Date</th>
                   <th>Status</th>
@@ -162,6 +160,7 @@
             </div>
           </div>
 
+          <div class="container" id="sessionDetailsContainer"></div>
           <!-- Attendance Table -->
           <h4 class="fw-bold mb-3">Your Attendance Records</h4>
 
