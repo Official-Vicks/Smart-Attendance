@@ -4,7 +4,7 @@ Defines database tables for the Smart Attendance System.
 Uses SQLAlchemy ORM with proper relationships.
 """
 
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Date
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Date, Boolean
 from sqlalchemy.orm import relationship
 from app.database import Base
 import datetime
@@ -57,7 +57,9 @@ class Attendance(Base):
     id = Column(Integer, primary_key=True, index=True)
 
     student_id = Column(Integer, ForeignKey("students.id"), nullable=False)
+    student_name = Column(String, nullable=False)
     lecturer_id = Column(Integer, ForeignKey("lecturers.id"), nullable=False)
+    lecturer_name = Column(String, nullable=False)
 
     # NEW: session link
     session_id = Column(
@@ -68,7 +70,6 @@ class Attendance(Base):
     )
 
     # Course snapshot fields
-    course_id = Column(Integer, ForeignKey("courses.id"), nullable=False)
     course_code = Column(String, nullable=False)
     course_title = Column(String, nullable=False)
 
@@ -79,7 +80,6 @@ class Attendance(Base):
     # Relationships
     student = relationship("Student", back_populates="attendance_records")
     lecturer = relationship("Lecturer", back_populates="attendance_records")
-    course = relationship("Course", back_populates="attendance_records")
     session = relationship("AttendanceSession")
 
 
@@ -96,7 +96,6 @@ class Course(Base):
     lecturer_id = Column(Integer, ForeignKey("lecturers.id"), nullable=False)
 
     lecturer = relationship("Lecturer", back_populates="courses")
-    attendance_records = relationship("Attendance", back_populates="course")
 
 
 # ----------------------------
@@ -107,12 +106,7 @@ class AttendanceSession(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     lecturer_id = Column(Integer, ForeignKey("lecturers.id"), nullable=False)
-    session_id = Column(
-        Integer,
-        ForeignKey("attendance_sessions.id"),
-        nullable=True,
-        index=True
-    )
+    lecturer_name = Column(String, nullable=False)
 
     course_code = Column(String, nullable=False)
     course_title = Column(String, nullable=False)
@@ -120,6 +114,8 @@ class AttendanceSession(Base):
     date = Column(Date, nullable=False)
 
     session_code = Column(String, unique=True, nullable=False)
+    is_active = Column(Boolean, default=True)
+    closed_at = Column(DateTime, nullable=True)
 
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
