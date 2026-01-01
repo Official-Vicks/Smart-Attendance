@@ -6,7 +6,8 @@ Used for request validation and response serialization.
 
 from pydantic import BaseModel, EmailStr, Field
 from typing import Optional, List
-import datetime
+import datetime 
+from datetime import date
 
 # ----------------------------
 # LECTURER SCHEMAS
@@ -83,17 +84,6 @@ class AttendanceCreate(AttendanceBase):
     course_id: int
 
 
-class AttendanceOut(AttendanceBase):
-    id: int
-    student_id: int
-    lecturer_id: int
-    lecturer_name: Optional[str] = None
-    course: Optional[str] = None
-    status: str
-    created_at: datetime.datetime
-
-    model_config = {"from_attributes": True}
-
 
 # ----------------------------
 # TOKEN & AUTH
@@ -121,18 +111,36 @@ class Message(BaseModel):
 # NEW: Attendance Session Schemas (Phase 2)
 # ----------------------------
 class AttendanceSessionCreate(BaseModel):
-    course_code: str
-    course_title: str
-    date: datetime.date
+    course_code:str
+    course_title:str
+    date:datetime.date
 
+
+class AttendanceMarkCreate(BaseModel):
+    session_id: int
 
 class AttendanceSessionOut(BaseModel):
     id: int
     lecturer_id: int
+    lecturer_name: str
     course_code: str
     course_title: str
-    date: datetime.date
+    date: date
     session_code: str
-    created_at: datetime.datetime
+    is_active: bool
+
+    model_config = {"from_attributes": True}
+
+class AttendanceOut(BaseModel):
+    id: int
+    student_id: int
+    student_name: str
+    lecturer_id: int
+    lecturer_name: str
+    session_id: int
+    course_code: str
+    course_title: str
+    date: date
+    status: str
 
     model_config = {"from_attributes": True}
