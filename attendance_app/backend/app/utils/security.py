@@ -1,11 +1,3 @@
-"""
-security.py
-Handles:
-- Token-based authentication (JWT creation & verification)
-- Current user retrieval
-- Role-based access control (student or lecturer)
-"""
-
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError, jwt
