@@ -1,18 +1,14 @@
-// Dashboard.js
+// ===============================
+// Dashboard.js (REBUILT BASELINE)
+// ===============================
 // Handles lecturer and student dashboard logic + Phase 2 session workflow
 
+currentSessionId = null;
 const API_BASE = "http://127.0.0.1:8000";
 
-// ------------------------
-// AUTH HELPERS
-// ------------------------
-function logout() {
-  localStorage.removeItem("access_token");
-  localStorage.removeItem("role");
-  localStorage.removeItem("user_id");
-  window.location.href = "login.html";
-}
-
+// -------------------------------
+// Auth helpers
+// -------------------------------
 function getToken() {
   return localStorage.getItem("access_token");
 }
@@ -20,45 +16,44 @@ function getToken() {
 function getHeaders() {
   return {
     "Content-Type": "application/json",
-    Authorization: "Bearer " + getToken(),
+    Authorization: `Bearer ${getToken()}`,
   };
+}
+
+function logout() {
+  localStorage.clear();
+  window.location.href = "index.html";
 }
 
 const role = localStorage.getItem("role");
 const userId = localStorage.getItem("user_id");
 
-// redirect if not logged in
 if (!getToken() || !role || !userId) {
-  window.location.href = "login.html";
+  logout();
 }
 
-// ------------------------
-// ON PAGE LOAD
-// ------------------------
-
-document.addEventListener("DOMContentLoaded", function () {
+// -------------------------------
+// Init
+// -------------------------------
+document.addEventListener("DOMContentLoaded", () => {
   if (role === "lecturer") {
     loadLecturerDashboard();
-
-    const generateBtn = document.getElementById("generateSessionBtn");
-    if (generateBtn) {
-      generateBtn.addEventListener("click", createSession);
-    }
+    bindSessionForm();
   } else if (role === "student") {
     loadStudentDashboard();
+    bindSessionForm();
   } else {
     logout();
   }
 });
 
-// ================================
-//      LECTURER DASHBOARD
-// ================================
+// ===============================
+// LECTURER DASHBOARD
+// ===============================
 function loadLecturerDashboard() {
   document.getElementById("lecturerSection").style.display = "block";
   document.getElementById("dashboardSubtitle").innerText = "Lecturer Dashboard";
 
-  // 1. Load lecturer profile
   fetch(`${API_BASE}/lecturers/me`, {
     headers: getHeaders(),
   })
@@ -67,11 +62,31 @@ function loadLecturerDashboard() {
       document.getElementById("username").innerText = data.full_name;
     });
 
-  // 2. Load attendance records
   loadLecturerAttendance();
+  loadLecturerSessions();
 }
 
-// Load all lecturer attendance
+// Load Lecturer sessions
+function loadLecturerSessions() {
+  fetch(`${API_BASE}/lecturers/me/sessions`, {
+    headers: getHeaders(),
+  })
+    .then((res) => res.json())
+    .then((sessions) => {
+      const box = document.getElementById("sessionCodeBox");
+      const span = document.getElementById("generatedSessionCode");
+
+      if (sessions.length > 0) {
+        box.innerHTML = "";
+        box.classList.remove("d-none");
+        sessions
+          .filter((session) => session.is_active)
+          .forEach((session) => renderSession(session));
+      }
+    });
+}
+
+// Load lecturer attendance
 function loadLecturerAttendance() {
   fetch(`${API_BASE}/lecturers/me/attendance`, {
     headers: getHeaders(),
@@ -85,28 +100,45 @@ function loadLecturerAttendance() {
       tbody.innerHTML = "";
 
       attendance.forEach((rec, idx) => {
-        const row = `
-                    <tr>
-                        <td>${idx + 1}</td>
-                        <td>${rec.student_id}</td>
-                        <td>${rec.course || "N/A"}</td>
-                        <td>${rec.date}</td>
-                        <td>${rec.status}</td>
-                    </tr>
-                `;
-        tbody.innerHTML += row;
+        tbody.innerHTML += `
+          <tr>
+            <td>${idx + 1}</td>
+            <td>${rec.student_id}</td>
+            <td>${rec.student_name}</td>
+            <td>${rec.course_code || "N/A"}</td>
+            <td>${rec.date}</td>
+            <td>${rec.status}</td>
+          </tr>
+        `;
       });
     });
 }
 
-// ---------------------------
-// PHASE 2: Create Attendance Session
-// ---------------------------
+// Bind session form ONCE
+function bindSessionForm() {
+  const sessionForm = document.getElementById("sessionForm");
+  if (!sessionForm) return;
+
+  sessionForm.onsubmit = function (e) {
+    e.preventDefault();
+    createSession();
+  };
+
+  const codeForm = document.getElementById("codeForm");
+  if (!codeForm) return;
+  codeForm.onsubmit = function (e) {
+    e.preventDefault();
+    verifySessionCode();
+  };
+}
+
+// Create attendance session
 function createSession() {
-  const submitBtn = document.getElementById("generateSessionBtn");
+  const submitBtn = document.querySelector(
+    "#sessionForm button[type='submit']"
+  );
   if (submitBtn) submitBtn.disabled = true;
 
-  console.log("Generate session clicked");
   const payload = {
     course_code: document.getElementById("courseCode").value,
     course_title: document.getElementById("courseTitle").value,
@@ -118,20 +150,22 @@ function createSession() {
     headers: getHeaders(),
     body: JSON.stringify(payload),
   })
-    .then((res) => {
+    .then(async (res) => {
       if (!res.ok) {
-        return res.json().then((data) => {
-          throw new Error(data.detail || "Session creation failed.");
-        });
+        const text = await res.text();
+        throw new Error(text || "Session creation failed");
       }
-      return res.json();
-    })
-    .then((session) => {
-      const codeSpan = document.getElementById("generatedSessionCode");
-      const codeBox = document.getElementById("sessionCodeBox");
 
-      codeSpan.innerText = session.session_code;
-      codeBox.classList.remove("d-none");
+      const contentType = res.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        return res.json();
+      }
+
+      return null;
+    })
+
+    .then(() => {
+      loadLecturerSessions();
     })
     .catch((err) => alert(err.message))
     .finally(() => {
@@ -139,14 +173,46 @@ function createSession() {
     });
 }
 
-// ================================
-//        STUDENT DASHBOARD
-// ================================
+function closeSession(sessionId) {
+  if (
+    !confirm(
+      "Closing this session will stop students from marking attendance. Continue?"
+    )
+  ) {
+    return;
+  }
+
+  fetch(`${API_BASE}/lecturers/sessions/${sessionId}/close`, {
+    method: "POST",
+    headers: getHeaders(),
+  })
+    .then(async (res) => {
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || "Failed to close session");
+      }
+
+      const contentType = res.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        return res.json();
+      }
+
+      return null;
+    })
+    .then(() => {
+      alert("Session closed successfully");
+      loadLecturerSessions();
+    })
+    .catch((err) => alert(err.message));
+}
+
+// ===============================
+// STUDENT DASHBOARD
+// ===============================
 function loadStudentDashboard() {
   document.getElementById("studentSection").style.display = "block";
   document.getElementById("dashboardSubtitle").innerText = "Student Dashboard";
 
-  // 1. Load student profile
   fetch(`${API_BASE}/students/me`, {
     headers: getHeaders(),
   })
@@ -154,51 +220,15 @@ function loadStudentDashboard() {
     .then((data) => {
       document.getElementById("username").innerText = data.full_name;
     });
-
-  // 2. Load attendance
-  loadStudentAttendance();
-
-  // 3. Code submit handler
-  const codeForm = document.getElementById("codeForm");
-  codeForm.addEventListener("submit", function (e) {
-    e.preventDefault();
-    verifySessionCode();
-  });
 }
 
-// Load all student attendance
-function loadStudentAttendance() {
-  fetch(`${API_BASE}/students/me/attendance`, {
-    headers: getHeaders(),
-  })
-    .then((res) => res.json())
-    .then((attendance) => {
-      const tbody = document
-        .getElementById("studentAttendanceTable")
-        .querySelector("tbody");
-
-      tbody.innerHTML = "";
-
-      attendance.forEach((rec, idx) => {
-        const row = `
-                    <tr>
-                        <td>${idx + 1}</td>
-                        <td>${rec.course || "N/A"}</td>
-                        <td>${rec.lecturer_name || "N/A"}</td>
-                        <td>${rec.date}</td>
-                        <td>${rec.status}</td>
-                    </tr>
-                `;
-        tbody.innerHTML += row;
-      });
-    });
-}
-
-// ---------------------------
-// PHASE 2: Student verifies session code
-// ---------------------------
+// Verify session code
 function verifySessionCode() {
+  const submitBtn = document.querySelector("#codeForm button[type='submit']");
+  if (submitBtn) submitBtn.disabled = true;
+
   const code = document.getElementById("sessionCodeInput").value.trim();
+  if (!code) return;
 
   fetch(`${API_BASE}/students/verify_session_code?session_code=${code}`, {
     method: "POST",
@@ -207,92 +237,152 @@ function verifySessionCode() {
     .then((res) => {
       if (!res.ok) {
         document.getElementById("invalidCodeBox").classList.remove("d-none");
-        throw new Error("Invalid code");
+        throw new Error("Invalid session code");
       }
       return res.json();
     })
     .then((session) => {
-      fetch(`${API_BASE}/attendance/session/${session.id}/status`, {
-        headers: getHeaders(),
-      })
-        .then((res) => res.json())
-        .then((status) => {
-          displaySessionDetails(session, status.marked);
-        });
+      // 🔒 HIDE expired / closed sessions
+      if (!session.is_active) {
+        document.getElementById("invalidCodeBox").innerText =
+          "This session is closed or expired";
+        return; // ❗ stop execution here
+      }
+      displaySessionDetails(session);
     })
-    .catch((err) => console.log(err));
+    .catch(() => {})
+    .finally(() => {
+      if (submitBtn) submitBtn.disabled = false;
+    });
 }
 
-function displaySessionDetails(session, alreadyMarked) {
-  const containerId = `session-${session.id}`;
-  // Prevent duplicate rendering
-  if (document.getElementById(containerId)) return;
+// Display session details
+function displaySessionDetails(session) {
+  const container = document.getElementById("sessionDetailsContainer");
+  container.innerHTML = "";
 
-  const container = document.createElement("div");
-  container.className = "card shadow mt-4";
-  container.id = containerId;
+  const card = document.createElement("div");
+  card.className = "card p-3 mb-3";
+  card.id = `session-${session.id}`;
 
-  container.innerHTML = `
-    <div class="card-body">
-      <h4 class="fw-bold mb-3">Active Attendance Session</h4>
-
-      <p><strong>Course Code:</strong> ${session.course_code}</p>
-      <p><strong>Course Title:</strong> ${session.course_title}</p>
-      <p><strong>Date:</strong> ${session.date}</p>
-
-      ${
-        alreadyMarked
-          ? `<div class="alert alert-secondary mt-3">
-               Attendance already marked for this session.
-             </div>`
-          : `<button
-               class="btn btn-success mt-3"
-               onclick="markAttendance(${session.lecturer_id}, ${session.id})"
-               Mark Attendance
-             </button>`
-      }
-
-      <div id="attendanceStatus-${session.id}" class="mt-3"></div>
-    </div>
+  card.innerHTML = `
+    <h5>${session.course_title}</h5>
+    <p><strong>Course Code:</strong> ${session.course_code}</p>
+    <p><strong>Date:</strong> ${session.date}</p>
+    <button class="btn btn-success">Mark Attendance</button>
   `;
 
-  document.getElementById("activeSessionContainer").prepend(container);
+  const btn = card.querySelector("button");
+  btn.onclick = () =>
+    markAttendance(
+      session.id,
+      btn,
+      card,
+      session.course_code,
+      session.course_title,
+      session.date
+    );
+
+  container.appendChild(card);
 }
 
-function markAttendance(lecturerId, sessionId) {
-  const payload = {
-    lecturer_id: lecturerId,
-    session_id: sessionId,
-    status: "present",
-  };
+// Mark attendance
+function markAttendance(sessionId, btn, card, course_code, course_title, date) {
+  btn.disabled = true;
 
   fetch(`${API_BASE}/attendance/mark`, {
     method: "POST",
     headers: getHeaders(),
-    body: JSON.stringify(payload),
+    body: JSON.stringify({
+      session_id: sessionId,
+      status: "present",
+      course_title: course_title,
+      course_code: course_code,
+      date: date,
+    }),
   })
-    .then((res) => {
+    .then(async (res) => {
       if (!res.ok) {
-        return res.json().then((data) => {
-          throw new Error(data.detail || "Attendance failed");
-        });
+        const text = await res.text();
+        throw new Error(text || "Attendance failed");
       }
-      return res.json();
-    })
-    .then(() => {
-      const statusBox = document.getElementById(
-        `attendanceStatus-${sessionId}`
-      );
 
-      statusBox.innerHTML = `
-        <div class="alert alert-success">
-          Attendance marked successfully ✅
-        </div>
-      `;
+      // ✅ Chrome-safe: only parse JSON if it exists
+      const contentType = res.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        return res.json();
+      }
+
+      return res;
+    })
+
+    .then(() => {
+      btn.innerText = "Attendance Marked";
+      //setTimeout(() => card.remove(), 5000);
     })
     .catch((err) => {
-      document.getElementById(`attendanceStatus-${sessionId}`).innerHTML = `
-        <div class="alert alert-danger">${err.message}</div>
-      `;
+      alert(err.message);
+      btn.disabled = false;
+    });
+}
+
+//  ==============================================
+// Session renderer
+// ===============================================
+function renderSession(session) {
+  const container = document.getElementById("sessionCodeBox");
+  container.classList.remove("d-none");
+
+  const item = document.createElement("div");
+  item.className = "alert alert-success mb-2";
+
+  item.innerHTML = `
+    <strong>${session.course_code}</strong> - ${session.course_title}<br>
+    Session Code: <b id="code-${session.id}">${session.session_code}</b>
+    <span class="float-end">${session.date}</span>
+
+    <button
+      class="btn btn-outline-secondary btn-sm ms-2"
+      onclick="copySessionCode('${session.session_code}')"
+    >
+      Copy
+    </button>
+
+    ${
+      session.is_active
+        ? `
+  <button
+    class="btn btn-danger btn-sm mt-2"
+    onclick="closeSession(${session.id})"
+  >
+    Close Session
+  </button>
+`
+        : `<span class="badge bg-secondary mt-2">Closed</span>`
+    }
+
+  `;
+
+  container.appendChild(item);
+}
+
+function copySessionCode(code) {
+  if (!code) {
+    alert("No session code to copy");
+    return;
+  }
+
+  if (!navigator.clipboard) {
+    alert("Clipboard access not supported in this browser.");
+    return;
+  }
+
+  navigator.clipboard
+    .writeText(code)
+    .then(() => {
+      alert("Session code copied to clipboard");
+    })
+    .catch(() => {
+      alert("Failed to copy session code");
     });
 }
