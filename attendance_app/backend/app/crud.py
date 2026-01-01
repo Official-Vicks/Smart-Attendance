@@ -77,6 +77,9 @@ def get_student_by_registration(db: Session, reg_no: str):
 def get_student(db: Session, student_id: int):
     return db.query(models.Student).filter(models.Student.id == student_id).first()
 
+def get_all_students(db: Session):
+    return db.query(models.Student).all()
+
 def create_student(db: Session, student_in: schemas.StudentCreate):
     if (get_student_by_email(db, student_in.email)
         or get_student_by_registration(db, student_in.registration_number)):
@@ -123,24 +126,25 @@ def get_attendance_by_student(db: Session, student_id: int):
 
 def create_attendance(
     db: Session,
-    *,
     student_id: int,
+    student_name: str,
     lecturer_id: int,
+    lecturer_name: str,
     session_id: int,
-    course_name: str,
     course_code: str,
     course_title: str,
-    date_value,
+    date:date,
     status: str = "present"
 ):
     attendance = models.Attendance(
         student_id=student_id,
+        student_name=student_name,
         lecturer_id=lecturer_id,
+        lecturer_name=lecturer_name,
         session_id=session_id,
-        course_name=course_name,
         course_code=course_code,
         course_title=course_title,
-        date=date_value,
+        date=date,
         status=status
     )
 
@@ -154,19 +158,21 @@ def create_attendance(
 # ----------------------------
 # NEW: Attendance Session CRUD
 # ----------------------------
-def create_attendance_session(db: Session, session_in: schemas.AttendanceSessionCreate, lecturer_id:int):
+def create_attendance_session(db: Session, session_in: schemas.AttendanceSessionCreate, lecturer_id:int, lecturer_name: str):
     """Create a new class attendance session with a unique session code."""
 
     unique_code = f"S-{uuid.uuid4().hex[:6].upper()}"
 
     session = models.AttendanceSession(
         lecturer_id=lecturer_id,
+        lecturer_name= lecturer_name,
         course_code=session_in.course_code,
         course_title=session_in.course_title,
         date=session_in.date,
-        session_code=unique_code
+        session_code=unique_code,
+        is_active= True
     )
-
+    
     db.add(session)
     db.commit()
     db.refresh(session)
@@ -213,3 +219,6 @@ def get_attendance_session_by_id(db, session_id: int):
     return db.query(models.AttendanceSession).filter(
         models.AttendanceSession.id == session_id
     ).first()
+
+def is_session_expired(session):
+    return session.date < date.today()
