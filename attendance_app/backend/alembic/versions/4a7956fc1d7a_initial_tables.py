@@ -1,8 +1,8 @@
 """initial tables
 
-Revision ID: 4a7956fc1d7a
+Revision ID: 68b73cc01a68
 Revises: 
-Create Date: 2025-12-25 21:04:52.457085
+Create Date: 2025-12-30 14:29:30.264560
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '4a7956fc1d7a'
+revision: str = '68b73cc01a68'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -32,19 +32,19 @@ def upgrade() -> None:
     op.create_table('attendance_sessions',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('lecturer_id', sa.Integer(), nullable=False),
-    sa.Column('session_id', sa.Integer(), nullable=True),
+    sa.Column('lecturer_name', sa.String(), nullable=False),
     sa.Column('course_code', sa.String(), nullable=False),
     sa.Column('course_title', sa.String(), nullable=False),
     sa.Column('date', sa.Date(), nullable=False),
     sa.Column('session_code', sa.String(), nullable=False),
+    sa.Column('is_active', sa.Boolean(), nullable=True),
+    sa.Column('closed_at', sa.DateTime(), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['lecturer_id'], ['lecturers.id'], ),
-    sa.ForeignKeyConstraint(['session_id'], ['attendance_sessions.id'], ),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('session_code')
     )
     op.create_index(op.f('ix_attendance_sessions_id'), 'attendance_sessions', ['id'], unique=False)
-    op.create_index(op.f('ix_attendance_sessions_session_id'), 'attendance_sessions', ['session_id'], unique=False)
     op.create_table('courses',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('title', sa.String(), nullable=False),
@@ -72,14 +72,13 @@ def upgrade() -> None:
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('student_id', sa.Integer(), nullable=False),
     sa.Column('lecturer_id', sa.Integer(), nullable=False),
+    sa.Column('lecturer_name', sa.String(), nullable=False),
     sa.Column('session_id', sa.Integer(), nullable=True),
-    sa.Column('course_id', sa.Integer(), nullable=False),
     sa.Column('course_code', sa.String(), nullable=False),
     sa.Column('course_title', sa.String(), nullable=False),
     sa.Column('date', sa.Date(), nullable=False),
     sa.Column('status', sa.String(), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['course_id'], ['courses.id'], ),
     sa.ForeignKeyConstraint(['lecturer_id'], ['lecturers.id'], ),
     sa.ForeignKeyConstraint(['session_id'], ['attendance_sessions.id'], ),
     sa.ForeignKeyConstraint(['student_id'], ['students.id'], ),
@@ -100,7 +99,6 @@ def downgrade() -> None:
     op.drop_table('students')
     op.drop_index(op.f('ix_courses_id'), table_name='courses')
     op.drop_table('courses')
-    op.drop_index(op.f('ix_attendance_sessions_session_id'), table_name='attendance_sessions')
     op.drop_index(op.f('ix_attendance_sessions_id'), table_name='attendance_sessions')
     op.drop_table('attendance_sessions')
     op.drop_table('lecturers')
