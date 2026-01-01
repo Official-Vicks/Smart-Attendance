@@ -17,11 +17,11 @@ router = APIRouter(prefix="/attendance", tags=["Attendance"])
 # ======================================================
 # Mark Attendance (Student)
 # ======================================================
-@router.post("/mark", response_model=schemas.AttendanceSessionOut)
+@router.post("/mark", response_model=schemas.AttendanceOut)
 def mark_attendance(
-    attendance_data: schemas.AttendanceSessionCreate,
+    attendance_data: schemas.AttendanceMarkCreate,
     db: Session = Depends(get_db),
-    current_user: models.Student = Depends(security.get_current_student)
+    current_user: models.Student = Depends(security.get_current_student),
 ):
     """
     Allows a student to mark attendance for a specific session.
@@ -39,6 +39,14 @@ def mark_attendance(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Attendance session not found"
         )
+    
+    # After fetching session
+    if not session.is_active or session.date < date.today():
+        raise HTTPException(
+            status_code=400,
+            detail="This attendance session is closed or expired"
+        )
+
 
     #Prevent duplicate attendance for this session
     existing = crud.get_attendance_by_student_and_session(
@@ -52,12 +60,14 @@ def mark_attendance(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Attendance already marked for this session"
         )
-
+    
     # Create attendance with course snapshot
     new_attendance = crud.create_attendance(
         db=db,
         student_id=current_user.id,
+        student_name=current_user.full_name,
         lecturer_id=session.lecturer_id,
+        lecturer_name=session.lecturer_name,
         session_id=session.id,
         course_code=session.course_code,
         course_title=session.course_title,
@@ -66,6 +76,7 @@ def mark_attendance(
     )
 
     return new_attendance
+
 
 
 # ======================================================
