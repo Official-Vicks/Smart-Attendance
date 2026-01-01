@@ -3,11 +3,10 @@ main.py
 FastAPI entry point.
 
 Provides:
-- /auth/register/student
-- /auth/register/lecturer
-- /auth/login/student
-- /auth/login/lecturer
+- /auth endpoints
 - /attendance endpoints
+- /lecturer endpoints
+- /student endpoints
 """
 
 from fastapi import FastAPI, Depends, HTTPException, status
@@ -20,6 +19,7 @@ from app.config import settings
 from typing import List
 from app.routes import students, lecturers, auth, attendance
 from fastapi.openapi.utils import get_openapi
+from tests import test_attendance
 
 
 app = FastAPI(
@@ -34,24 +34,26 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
          "http://127.0.0.1:5500",
+         "http://127.0.0.1:8000"
     ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-from fastapi import Request
+# from fastapi import Request
 
-@app.get("/debug-auth")
-def debug_auth(request: Request):
-    return {
-        "authorization_header": request.headers.get("authorization")
-    }
+# @app.get("/debug-auth")
+# def debug_auth(request: Request):
+#     return {
+#         "authorization_header": request.headers.get("authorization")
+#     }
 
 app.include_router(auth.router)
 app.include_router(students.router)
 app.include_router(lecturers.router)
 app.include_router(attendance.router)
+app.include_router(test_attendance.router)
 
 
 @app.get("/health", tags=["health"])
