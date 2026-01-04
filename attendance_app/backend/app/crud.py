@@ -12,12 +12,13 @@ from app.config import settings
 from typing import Optional, Dict
 import uuid
 
+
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # ----------------------------
 # Password helpers
 # ----------------------------
-def hash_password(password: str) -> str:
+def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -36,8 +37,53 @@ def decode_access_token(token: str) -> Optional[Dict]:
 # ----------------------------
 # Lecturer CRUD
 # ----------------------------
+
+def change_lecturer_password(db: Session, lecturer, current_password: str, new_password: str):
+    if not verify_password(current_password, lecturer.hashed_password):
+        return False
+
+    lecturer.hashed_password = get_password_hash(new_password)
+    db.commit()
+    return True
+    
+
+def update_lecturer(db: Session, lecturer_id: int, updates: dict):
+    lecturer = (
+        db.query(models.Lecturer)
+        .filter(models.Lecturer.id == lecturer_id)
+        .first()
+    )
+
+    if not lecturer:
+        return None
+
+    ALLOWED_FIELDS = {"full_name", "email", "course"}
+
+    for field, value in updates.items():
+        if field in ALLOWED_FIELDS and value is not None:
+            setattr(lecturer, field, value)
+
+
+    db.commit()
+    db.refresh(lecturer)
+
+    return lecturer
+
 def get_lecturer_by_email(db: Session, email: str):
-    return db.query(models.Lecturer).filter(models.Lecturer.email == email).first()
+    return (
+        db.query(models.Lecturer)
+        .filter(models.Lecturer.email == email)
+        .first()
+    )
+
+
+def lecturer_email_exists(db: Session, email: str, exclude_id: Optional[int] = None) -> bool:
+    query = db.query(models.Lecturer).filter(models.Lecturer.email == email)
+
+    if exclude_id:
+        query = query.filter(models.Lecturer.id != exclude_id)
+
+    return db.query(query.exists()).scalar()
 
 def get_lecturer(db: Session, lecturer_id: int):
     return db.query(models.Lecturer).filter(models.Lecturer.id == lecturer_id).first()
@@ -49,7 +95,7 @@ def create_lecturer(db: Session, lecturer_in: schemas.LecturerCreate):
     lecturer = models.Lecturer(
         full_name=lecturer_in.full_name,
         email=lecturer_in.email,
-        hashed_password=hash_password(lecturer_in.password),
+        hashed_password=get_password_hash(lecturer_in.password),
         course=lecturer_in.course
     )
     db.add(lecturer)
@@ -68,8 +114,52 @@ def authenticate_lecturer(db: Session, email: str, password: str):
 # ----------------------------
 # Student CRUD
 # ----------------------------
+def change_student_password(db: Session, student, current_password: str, new_password: str):
+    if not verify_password(current_password, student.hashed_password):
+        return False
+
+    student.hashed_password = get_password_hash(new_password)
+    db.commit()
+    return True
+
+
+def update_student(db: Session, student_id: int, updates: dict):
+    student = (
+        db.query(models.Student)
+        .filter(models.Student.id == student_id)
+        .first()
+    )
+
+    if not student:
+        return None
+
+    ALLOWED_FIELDS = {"full_name", "email", "department", "reg_no"}
+
+    for field, value in updates.items():
+        if field in ALLOWED_FIELDS and value is not None:
+            setattr(student, field, value)
+
+
+    db.commit()
+    db.refresh(student)
+
+    return student
+
 def get_student_by_email(db: Session, email: str):
-    return db.query(models.Student).filter(models.Student.email == email).first()
+    return (
+        db.query(models.Student)
+        .filter(models.Student.email == email)
+        .first()
+    )
+
+
+def student_email_exists(db: Session, email: str, exclude_id: Optional[int] = None) -> bool:
+    query = db.query(models.Student).filter(models.Student.email == email)
+
+    if exclude_id:
+        query = query.filter(models.Student.id != exclude_id)
+
+    return db.query(query.exists()).scalar()
 
 def get_student_by_registration(db: Session, reg_no: str):
     return db.query(models.Student).filter(models.Student.registration_number == reg_no).first()
@@ -90,7 +180,7 @@ def create_student(db: Session, student_in: schemas.StudentCreate):
         email=student_in.email,
         registration_number=student_in.registration_number,
         department=student_in.department,
-        hashed_password=hash_password(student_in.password)
+        hashed_password=get_password_hash(student_in.password)
     )
     db.add(student)
     db.commit()
