@@ -9,17 +9,17 @@ Provides:
 - /student endpoints
 """
 
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.orm import Session
-from app import models, schemas, crud
-from app.database import engine, get_db
 import datetime
 from app.config import settings
-from typing import List
 from app.routes import students, lecturers, auth, attendance
 from fastapi.openapi.utils import get_openapi
 from tests import test_attendance
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+import os
+
 
 
 app = FastAPI(
@@ -28,6 +28,7 @@ app = FastAPI(
     description="Backend for attendance system",
     version="1.0.0"
 )
+
 
 # CORS
 app.add_middleware(
@@ -54,6 +55,20 @@ app.include_router(students.router)
 app.include_router(lecturers.router)
 app.include_router(attendance.router)
 app.include_router(test_attendance.router)
+
+BASE_DIR = os.path.dirname(
+    os.path.dirname(
+        os.path.dirname(os.path.abspath(__file__))
+    )
+)
+
+FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
+
+app.mount(
+    "/",
+    StaticFiles(directory=FRONTEND_DIR, html=True),
+    name="frontend"
+)
 
 
 @app.get("/health", tags=["health"])
