@@ -1,7 +1,7 @@
-# ======================================================
-# Attendance Routes
-# Handles marking and viewing of attendance records.
-# ======================================================
+"""
+Attendance Routes.
+Handles marking and viewing of attendance records.
+"""
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
