@@ -1,3 +1,10 @@
+# backend/app/routes/lecturers.py
+
+"""
+lecturers.py\n
+Routes for lecturer dashboard, profile, and class attendance management.
+"""
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from datetime import datetime
@@ -28,10 +35,33 @@ def update_lecturer_profile(
     db: Session = Depends(get_db),
     current_lecturer=Depends(security.get_current_lecturer)
 ):
+    if updates.email:
+        if crud.lecturer_email_exists(db, updates.email, exclude_id=current_lecturer.id):
+            raise HTTPException(status_code=400, detail="Email already in use")
+
     updated = crud.update_lecturer(db, current_lecturer.id, updates.model_dump())
     if not updated:
         raise HTTPException(status_code=404, detail="Lecturer not found")
     return updated
+
+# change lecturer password
+@router.put("/change-password")
+def change_lecturer_password(
+    payload: schemas.ChangePassword,
+    db: Session = Depends(get_db),
+    current_lecturer=Depends(security.get_current_lecturer)
+):
+    success = crud.change_lecturer_password(
+        db,
+        current_lecturer,
+        payload.current_password,
+        payload.new_password
+    )
+
+    if not success:
+        raise HTTPException(status_code=400, detail="Current password is incorrect")
+
+    return {"message": "Password updated successfully"}
 
 
 # -------------------------
@@ -84,6 +114,7 @@ def get_my_sessions(
         .all()
     )
 
+# Close session
 @router.post("/sessions/{session_id}/close")
 def close_session(
     session_id: int,
