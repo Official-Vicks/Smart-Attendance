@@ -24,7 +24,7 @@ router = APIRouter(
 @router.post("/register/lecturer", response_model=schemas.LecturerOut)
 def register_lecturer(lecturer: schemas.LecturerCreate, db: Session = Depends(get_db)):
     """Register a new lecturer account"""
-    existing = crud.get_lecturer_by_email(db, lecturer.email)
+    existing = crud.lecturer_email_exists(db, lecturer.email)
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
 
@@ -37,7 +37,7 @@ def register_lecturer(lecturer: schemas.LecturerCreate, db: Session = Depends(ge
 @router.post("/register/student", response_model=schemas.StudentOut)
 def register_student(student: schemas.StudentCreate, db: Session = Depends(get_db)):
     """Register a new student account"""
-    existing = crud.get_student_by_email(db, student.email)
+    existing = crud.student_email_exists(db, student.email)
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
 
