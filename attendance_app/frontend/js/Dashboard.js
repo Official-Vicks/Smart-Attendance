@@ -4,7 +4,7 @@
 // Handles lecturer and student dashboard logic + Phase 2 session workflow
 
 currentSessionId = null;
-const API_BASE = "http://127.0.0.1:8000";
+const API_BASE = "";
 
 // -------------------------------
 // Auth helpers
@@ -220,6 +220,34 @@ function loadStudentDashboard() {
     .then((data) => {
       document.getElementById("username").innerText = data.full_name;
     });
+  loadStudentAttendance();
+}
+
+// Load Attendance for the logged in student
+function loadStudentAttendance() {
+  fetch(`${API_BASE}/students/me/attendance`, {
+    headers: getHeaders(),
+  })
+    .then((res) => res.json())
+    .then((attendance) => {
+      const tbody = document
+        .getElementById("studentAttendanceTable")
+        .querySelector("tbody");
+
+      tbody.innerHTML = "";
+
+      attendance.forEach((rec, idx) => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${idx + 1}</td>
+            <td>${rec.course_code || "N/A"}</td>
+            <td>${rec.lecturer_name}</td>
+            <td>${rec.date}</td>
+            <td>${rec.status}</td>
+          </tr>
+        `;
+      });
+    });
 }
 
 // Verify session code
@@ -318,7 +346,7 @@ function markAttendance(sessionId, btn, card, course_code, course_title, date) {
 
     .then(() => {
       btn.innerText = "Attendance Marked";
-      //setTimeout(() => card.remove(), 5000);
+      setTimeout(() => card.remove(), 2000);
     })
     .catch((err) => {
       alert(err.message);
