@@ -11,7 +11,7 @@ from datetime import date
 from typing import List
 from app import schemas, crud, models
 from app.database import get_db
-from app.utils.security import get_current_student
+from app.utils import security
 
 router = APIRouter(
     prefix="/students",
@@ -22,7 +22,7 @@ router = APIRouter(
 # Get logged-in student profile
 # -------------------------
 @router.get("/me", response_model=schemas.StudentOut)
-def get_my_profile(current_student=Depends(get_current_student)):
+def get_my_profile(current_student=Depends(security.get_current_student)):
     return current_student
 
 
@@ -33,21 +33,44 @@ def get_my_profile(current_student=Depends(get_current_student)):
 def update_student_profile(
     updates: schemas.StudentBase,
     db: Session = Depends(get_db),
-    current_student=Depends(get_current_student)
+    current_student=Depends(security.get_current_student)
 ):
+    if updates.email:
+        if crud.student_email_exists(db, updates.email, exclude_id=current_student.id):
+            raise HTTPException(status_code=400, detail="Email already in use")
+
     updated = crud.update_student(db, current_student.id, updates.model_dump())
     if not updated:
         raise HTTPException(status_code=404, detail="Student not found")
     return updated
 
+# change password
+@router.put("/change-password")
+def change_student_password(
+    payload: schemas.ChangePassword,
+    db: Session = Depends(get_db),
+    current_student=Depends(security.get_current_student)
+):
+    success = crud.change_student_password(
+        db,
+        current_student,
+        payload.current_password,
+        payload.new_password
+    )
+
+    if not success:
+        raise HTTPException(status_code=400, detail="Current password is incorrect")
+
+    return {"message": "Password updated successfully"}
+
 
 # -------------------------
 # Get my attendance records
 # -------------------------
-@router.get("/me/attendance", response_model=List[schemas.AttendanceOut])
+@router.get("/me/attendance", response_model=List[schemas.MyAttendanceOut])
 def get_my_attendance_records(
     db: Session = Depends(get_db),
-    current_user: models.Student = Depends(get_current_student)
+    current_user: models.Student = Depends(security.get_current_student)
 ):
     records = crud.get_attendance_by_student(db, current_user.id)
     output = []
@@ -56,8 +79,9 @@ def get_my_attendance_records(
             "id": rec.id,
             "date": rec.date,
             "status": rec.status,
-            "course": rec.course.name,
-            "lecturer_name": rec.lecturer.full_name
+            "course_title": rec.course_title,
+            "course_code": rec.course_code,
+            "lecturer_name": rec.lecturer_name
         })
     return output
 
@@ -69,7 +93,7 @@ def get_my_attendance_records(
 def verify_session_code(
     session_code: str,
     db: Session = Depends(get_db),
-    current_student=Depends(get_current_student)
+    current_student=Depends(security.get_current_student)
 ):
     """Student enters the generated attendance code to access session"""
 
