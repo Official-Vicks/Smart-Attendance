@@ -9,6 +9,13 @@ from typing import Optional, List
 import datetime 
 from datetime import date
 
+# --------------------------
+# Shared by both roles
+# --------------------------
+class ChangePassword(BaseModel):
+    current_password: str
+    new_password: str
+
 # ----------------------------
 # LECTURER SCHEMAS
 # ----------------------------
@@ -69,7 +76,15 @@ class StudentLog(StudentLogin):
 
     model_config = {"from_attributes": True}
 
+class MyAttendanceOut(BaseModel):
+    id: int
+    date: date
+    status: str
+    course_title: str
+    course_code: str
+    lecturer_name: str
 
+    model_config = {"from_attributes": True}
 # ----------------------------
 # ATTENDANCE SCHEMAS
 # ----------------------------
