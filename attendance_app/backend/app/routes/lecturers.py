@@ -12,6 +12,7 @@ from typing import List
 from app import schemas, crud, models
 from app.database import get_db
 from app.utils import security
+from fastapi import UploadFile, File
 
 router = APIRouter(
     prefix="/lecturers",
@@ -24,7 +25,6 @@ router = APIRouter(
 @router.get("/me", response_model=schemas.LecturerOut)
 def get_my_profile(current_lecturer=Depends(security.get_current_lecturer)):
     return current_lecturer
-
 
 # -------------------------
 # Update lecturer profile
@@ -63,6 +63,39 @@ def change_lecturer_password(
 
     return {"message": "Password updated successfully"}
 
+
+# upload profile image
+@router.post("/profile/image")
+def upload_profile_image(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user=Depends(security.get_current_lecturer)
+):
+    if file.content_type not in ["image/jpeg", "image/png"]:
+        raise HTTPException(status_code=400, detail="Invalid image type")
+
+    filename = f"user_{current_user.id}_{file.filename}"
+    file_path = f"uploads/{filename}"
+
+    with open(file_path, "wb") as buffer:
+        buffer.write(file.file.read())
+
+    current_user.profile_image = f"uploads/{filename}"
+    db.commit()
+
+    return {
+        "profile_image": f"/uploads/{filename}"
+    }
+
+# deactivate lecturer account
+@router.delete("/deactivate")
+def deactivate_lecturer(
+    db: Session = Depends(get_db),
+    current_lecturer=Depends(security.get_current_lecturer)
+):
+    current_lecturer.is_active = False
+    db.commit()
+    return {"detail": "Account deactivated successfully"}
 
 # -------------------------
 # View all students
