@@ -1,3 +1,11 @@
+"""
+security.py
+Handles:
+- Token-based authentication (JWT creation & verification)
+- Current user retrieval
+- Role-based access control (student or lecturer)
+"""
+
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError, jwt
@@ -69,11 +77,20 @@ def get_current_user(
     # Fetch user
     if role == "student":
         user = crud.get_student_by_email(db, email)
-    else:
+    elif role == "lecturer":
         user = crud.get_lecturer_by_email(db, email)
+    elif role == "admin":
+        user = crud.get_admin_by_email(db, email)
 
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    
+     # SOFT DELETE CHECK (HERE)
+    if not user.is_active:
+        raise HTTPException(
+            status_code=403,
+            detail="Account is deactivated"
+        )
 
     return {"role": role, "user": user}
 
@@ -98,3 +115,20 @@ def get_current_lecturer(current=Depends(get_current_user)):
             detail="Access restricted to lecturers only"
         )
     return current["user"]
+
+def get_current_admin(current=Depends(get_current_user)):
+    if current["role"] != "admin":
+        raise HTTPException(
+            status_code=403,
+            detail="Admin access only"
+        )
+
+    admin = current["user"]
+
+    if not admin.is_active:
+        raise HTTPException(
+            status_code=403,
+            detail="Admin account deactivated"
+        )
+
+    return admin
