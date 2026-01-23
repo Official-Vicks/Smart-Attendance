@@ -92,13 +92,13 @@ def view_attendance_records(
     Allows a lecturer to view attendance records.
     Automatically filters by lecturer_id.
     """
-
-    # Get all attendance for this lecturer
-    records = crud.get_attendance_for_lecturer(db, lecturer_id=current_user.id)
-
     # Optional filter
     if date_filter:
         records = [record for record in records if record.date == date_filter]
+        
+    # Get all attendance for this lecturer
+    records = crud.get_attendance_for_lecturer(db, lecturer_id=current_user.id)
+
 
     return records
 
@@ -145,3 +145,13 @@ def check_attendance_status(
     return {
         "marked": attendance is not None
     }
+
+@router.get("/me", response_model=List[schemas.AttendanceOut])
+def view_my_attendance(
+    db: Session = Depends(get_db),
+    current_student: models.Student = Depends(security.get_current_student)
+):
+    return crud.get_attendance_by_student(
+        db=db,
+        student_id=current_student.id
+    )
