@@ -12,6 +12,7 @@ from typing import List
 from app import schemas, crud, models
 from app.database import get_db
 from app.utils import security
+from fastapi import UploadFile, File
 
 router = APIRouter(
     prefix="/students",
@@ -24,7 +25,6 @@ router = APIRouter(
 @router.get("/me", response_model=schemas.StudentOut)
 def get_my_profile(current_student=Depends(security.get_current_student)):
     return current_student
-
 
 # -------------------------
 # Update profile
@@ -63,6 +63,38 @@ def change_student_password(
 
     return {"message": "Password updated successfully"}
 
+# update profile image
+@router.post("/profile/image")
+def upload_profile_image(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user=Depends(security.get_current_student)
+):
+    if file.content_type not in ["image/jpeg", "image/png"]:
+        raise HTTPException(status_code=400, detail="Invalid image type")
+
+    filename = f"user_{current_user.id}_{file.filename}"
+    file_path = f"uploads/{filename}"
+
+    with open(file_path, "wb") as buffer:
+        buffer.write(file.file.read())
+
+    current_user.profile_image = f"/uploads/{filename}"
+    db.commit()
+
+    return {
+        "profile_image": f"/uploads/{filename}"
+    }
+
+# deactivate student account
+@router.delete("/deactivate")
+def deactivate_lecturer(
+    db: Session = Depends(get_db),
+    current_student=Depends(security.get_current_student)
+):
+    current_student.is_active = False
+    db.commit()
+    return {"detail": "Account deactivated successfully"}
 
 # -------------------------
 # Get my attendance records
@@ -99,10 +131,10 @@ def verify_session_code(
 
     session = crud.get_session_by_code(db, session_code)
 
-    if not session.is_active or session.date < date.today():
-        raise HTTPException(status_code=400, detail="Session is expired")
-
     if not session:
         raise HTTPException(status_code=404, detail="Invalid or expired session code")
+
+    if not session.is_active or session.date < date.today():
+        raise HTTPException(status_code=400, detail="Session is expired")
 
     return session
