@@ -41,15 +41,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# from fastapi import Request
-
-# @app.get("/debug-auth")
-# def debug_auth(request: Request):
-#     return {
-#         "authorization_header": request.headers.get("authorization")
-#     }
-
-
 app.include_router(auth.router)
 app.include_router(students.router)
 app.include_router(lecturers.router)
@@ -120,6 +111,7 @@ def custom_openapi():
 
     app.openapi_schema = openapi_schema
     return app.openapi_schema
+
 
 
 app.openapi = custom_openapi  # <-- ACTIVATE CUSTOM SWAGGER
