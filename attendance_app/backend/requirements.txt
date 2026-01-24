@@ -9,3 +9,4 @@ jinja2
 requests
 psycopg2-binary==2.9.9 #feel free to change depending on your windows(or any operating system) version
 python-dotenv
+pydantic[email]
