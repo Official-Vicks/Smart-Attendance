@@ -4,7 +4,8 @@ sqlalchemy
 pydantic
 pydantic-settings
 python-jose
-passlib[bcrypt]
+passlib==1.7.4
+bcrypt==3.2.2
 jinja2
 requests
 psycopg2-binary==2.9.9 #feel free to change depending on your windows(or any operating system) version
