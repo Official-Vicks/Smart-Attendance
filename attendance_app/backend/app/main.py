@@ -63,13 +63,6 @@ app.mount(
     name="uploads"
 )
 
-FRONTEND_DIR = os.path.join(PROJECT_ROOT, "frontend")
-
-app.mount(
-    "/",
-    StaticFiles(directory=FRONTEND_DIR, html=True),
-    name="frontend"
-)
 @app.get("/health", tags=["health"])
 def health_check():
     return {"status": "ok", "timestamp": datetime.datetime.utcnow()}
@@ -115,3 +108,4 @@ def custom_openapi():
 
 
 app.openapi = custom_openapi  # <-- ACTIVATE CUSTOM SWAGGER
+
