@@ -4,7 +4,10 @@
 // Handles lecturer and student dashboard logic + Phase 2 session workflow
 
 currentSessionId = null;
-const API_BASE = "";
+const API_BASE =
+  location.hostname === "localhost"
+    ? "http://127.0.0.1:8000"
+    : "https://smart-attendance-api-q5ul.onrender.com";
 
 // -------------------------------
 // Auth helpers

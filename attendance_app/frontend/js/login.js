@@ -1,6 +1,11 @@
 // login.js
 // Handles user login (Lecturer & Student) for Smart Attendance System
 
+const API_BASE =
+  location.hostname === "localhost"
+    ? "http://127.0.0.1:8000"
+    : "https://smart-attendance-api-q5ul.onrender.com";
+
 document.addEventListener("DOMContentLoaded", () => {
   const loginForm = document.getElementById("loginForm");
 
@@ -24,13 +29,19 @@ document.addEventListener("DOMContentLoaded", () => {
       // determine endpoint based on selected role
       let url = "";
       if (role === "lecturer") {
-        url = "http://127.0.0.1:8000/auth/login/lecturer";
+        url = `${API_BASE}/auth/login/lecturer`;
         payload = {
           email,
           password,
         };
       } else if (role === "student") {
-        url = "http://127.0.0.1:8000/auth/login/student";
+        url = `${API_BASE}/auth/login/student`;
+        payload = {
+          email,
+          password,
+        };
+      } else if (role === "admin") {
+        url = `${API_BASE}/admin/login`;
         payload = {
           email,
           password,
@@ -56,7 +67,11 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("role", result.role);
         localStorage.setItem("user_id", result.user_id);
         // Redirect
-        window.location.href = "dashboard.html";
+        if (role === "student" || role === "lecturer") {
+          window.location.href = "dashboard.html";
+        } else if (role === "admin") {
+          window.location.href = "admin.html";
+        }
       } else {
         alert(result.detail || "Invalid login credentials.");
       }

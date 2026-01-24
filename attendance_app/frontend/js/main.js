@@ -15,7 +15,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const LOGIN_PATH = "login.html";
 
   // BACKEND API base - if deploying, consider setting via server/template/env
-  const BASE_URL = "http://127.0.0.1:8000";
+  const BASE_URL =
+    location.hostname === "localhost"
+      ? "http://127.0.0.1:8000"
+      : "https://smart-attendance-api-q5ul.onrender.com";
 
   const signupForm = document.getElementById("registerForm");
   const roleSelect = document.getElementById("role");
