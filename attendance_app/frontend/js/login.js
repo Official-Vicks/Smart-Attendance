@@ -68,9 +68,9 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("user_id", result.user_id);
         // Redirect
         if (role === "student" || role === "lecturer") {
-          window.location.href = "dashboard.html";
+          window.location.replace("Dashboard.html");
         } else if (role === "admin") {
-          window.location.href = "admin.html";
+          window.location.replace("admin.html");
         }
       } else {
         alert(result.detail || "Invalid login credentials.");
