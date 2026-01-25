@@ -5,6 +5,9 @@
    Author: Victory Chidiebere (updated)
    ========================================================= */
 
+function learnMore() {
+  window.location.href = "about.html";
+}
 document.addEventListener("DOMContentLoaded", () => {
   console.log("Smart Attendance frontend loaded successfully ✅");
 
