@@ -8,6 +8,9 @@
 function learnMore() {
   window.location.href = "about.html";
 }
+fetch("https://smart-attendance-api-q5ul.onrender.com/").catch(() =>
+  console.log("Backend waking up...")
+);
 document.addEventListener("DOMContentLoaded", () => {
   console.log("Smart Attendance frontend loaded successfully ✅");
 
@@ -251,3 +254,4 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
+
