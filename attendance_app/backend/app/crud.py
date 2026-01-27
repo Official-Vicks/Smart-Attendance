@@ -19,6 +19,8 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 # Password helpers
 # ----------------------------
 def get_password_hash(password: str) -> str:
+    if len(password.encode("utf-8")) > 72:
+        raise ValueError("Password too long (max 72 characters).")
     return pwd_context.hash(password)
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -330,18 +332,6 @@ def is_session_expired(session):
 
 def get_admin_by_email(db: Session, email: str):
     return db.query(models.Admin).filter(models.Admin.email == email).first()
-
-
-def create_admin(db: Session, full_name: str, email: str, password: str):
-    admin = models.Admin(
-        full_name=full_name,
-        email=email,
-        hashed_password=get_password_hash(password)
-    )
-    db.add(admin)
-    db.commit()
-    db.refresh(admin)
-    return admin
 
 
 def authenticate_admin(db: Session, email: str, password: str):
