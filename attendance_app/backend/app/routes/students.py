@@ -12,7 +12,7 @@ from typing import List
 from app import schemas, crud, models
 from app.database import get_db
 from app.utils import security
-from fastapi import UploadFile, File
+from fastapi import UploadFile, File, Request
 
 router = APIRouter(
     prefix="/students",
@@ -66,6 +66,7 @@ def change_student_password(
 # update profile image
 @router.post("/profile/image")
 def upload_profile_image(
+    request: Request,
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
     current_user=Depends(security.get_current_student)
@@ -79,16 +80,18 @@ def upload_profile_image(
     with open(file_path, "wb") as buffer:
         buffer.write(file.file.read())
 
-    current_user.profile_image = f"/uploads/{filename}"
+    image_url = str(request.base_url) + f"uploads/{filename}"
+
+    current_user.profile_image = image_url
     db.commit()
 
     return {
-        "profile_image": f"/uploads/{filename}"
+        "profile_image": image_url
     }
 
 # deactivate student account
 @router.delete("/deactivate")
-def deactivate_lecturer(
+def deactivate_student(
     db: Session = Depends(get_db),
     current_student=Depends(security.get_current_student)
 ):
