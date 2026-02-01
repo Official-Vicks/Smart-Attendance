@@ -31,7 +31,7 @@ function logout() {
 const role = localStorage.getItem("role");
 const userId = localStorage.getItem("user_id");
 
-if (!getToken() || !role || !userId) {
+if (!getToken()) {
   logout();
 }
 
@@ -417,4 +417,5 @@ function copySessionCode(code) {
       alert("Failed to copy session code");
     });
 }
+
 
