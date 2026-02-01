@@ -52,17 +52,15 @@ app.include_router(admin.router)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_ROOT = os.path.dirname(BASE_DIR)
 
-# -------------------------------------------------
-# 1️⃣ Serve uploads (specific path FIRST)
-# -------------------------------------------------
-UPLOAD_DIR = os.path.join(BASE_DIR, "uploads")
+
+
+FRONTEND_DIR = os.path.join(PROJECT_ROOT, "frontend")
 
 app.mount(
-    "/uploads",
-    StaticFiles(directory=UPLOAD_DIR),
-    name="uploads"
+    "/",
+    StaticFiles(directory=FRONTEND_DIR, html=True),
+    name="frontend"
 )
-
 @app.get("/health", tags=["health"])
 def health_check():
     return {"status": "ok", "timestamp": datetime.datetime.utcnow()}
@@ -106,6 +104,4 @@ def custom_openapi():
     return app.openapi_schema
 
 
-
 app.openapi = custom_openapi  # <-- ACTIVATE CUSTOM SWAGGER
-
