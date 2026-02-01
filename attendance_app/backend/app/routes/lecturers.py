@@ -12,7 +12,8 @@ from typing import List
 from app import schemas, crud, models
 from app.database import get_db
 from app.utils import security
-from fastapi import UploadFile, File, Request
+from fastapi import UploadFile, File
+from app.utils.storage import upload_profile_image
 
 router = APIRouter(
     prefix="/lecturers",
@@ -67,7 +68,6 @@ def change_lecturer_password(
 # upload profile image
 @router.post("/profile/image")
 def upload_profile_image(
-    request: Request,
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
     current_user=Depends(security.get_current_lecturer)
@@ -75,13 +75,7 @@ def upload_profile_image(
     if file.content_type not in ["image/jpeg", "image/png"]:
         raise HTTPException(status_code=400, detail="Invalid image type")
 
-    filename = f"user_{current_user.id}_{file.filename}"
-    file_path = f"uploads/{filename}"
-
-    with open(file_path, "wb") as buffer:
-        buffer.write(file.file.read())
-
-    image_url = str(request.base_url) + f"uploads/{filename}"
+    image_url = upload_profile_image(file, current_user.id)
 
     current_user.profile_image = image_url
     db.commit()
