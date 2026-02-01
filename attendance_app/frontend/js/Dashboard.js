@@ -25,7 +25,7 @@ function getHeaders() {
 
 function logout() {
   localStorage.clear();
-  window.location.href = "index.html";
+  window.location.href = "login.html";
 }
 
 const role = localStorage.getItem("role");
@@ -417,3 +417,4 @@ function copySessionCode(code) {
       alert("Failed to copy session code");
     });
 }
+
