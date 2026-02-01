@@ -12,3 +12,4 @@ psycopg2-binary==2.9.9 #feel free to change depending on your windows(or any ope
 python-dotenv
 pydantic[email]
 python-multipart
+supabase==2.*
