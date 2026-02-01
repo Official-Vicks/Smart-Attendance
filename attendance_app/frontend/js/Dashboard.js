@@ -25,7 +25,7 @@ function getHeaders() {
 
 function logout() {
   localStorage.clear();
-  window.location.href = "login.html";
+  window.location.href = "index.html";
 }
 
 const role = localStorage.getItem("role");
@@ -60,9 +60,18 @@ function loadLecturerDashboard() {
   fetch(`${API_BASE}/lecturers/me`, {
     headers: getHeaders(),
   })
-    .then((res) => res.json())
+    .then((res) => {
+      if (!res.ok) {
+        logout();
+        throw new Error("Unauthorized");
+      }
+      return res.json();
+    })
     .then((data) => {
       document.getElementById("username").innerText = data.full_name;
+    })
+    .catch((err) => {
+      console.error(err);
     });
 
   loadLecturerAttendance();
@@ -417,5 +426,3 @@ function copySessionCode(code) {
       alert("Failed to copy session code");
     });
 }
-
-
