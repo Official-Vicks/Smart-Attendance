@@ -66,7 +66,7 @@ def change_student_password(
 
 # update profile image
 @router.post("/profile/image")
-def upload_profile_image(
+def upload_profile_image_student(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
     current_user=Depends(security.get_current_student)
@@ -133,5 +133,6 @@ def verify_session_code(
 
     if not session.is_active or session.date < date.today():
         raise HTTPException(status_code=400, detail="Session is expired")
+
 
     return session
