@@ -54,7 +54,7 @@ def login_lecturer(payload: schemas.LecturerLogin, db: Session = Depends(get_db)
     """
     user = crud.authenticate_lecturer(db, payload.email, payload.password)
     if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email, password, or non-existing account")
 
     #create JWT token
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -66,7 +66,8 @@ def login_lecturer(payload: schemas.LecturerLogin, db: Session = Depends(get_db)
     "access_token": access_token,
     "token_type": "bearer",
     "user_id": user.id,
-    "role": "lecturer"}
+    "role": "lecturer",
+    "expires_in": settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60}
 
 
 
@@ -79,7 +80,7 @@ def login_student(payload: schemas.StudentLogin, db: Session = Depends(get_db)):
     """
     user = crud.authenticate_student(db, payload.email, payload.password)
     if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email, password or non-existing account")
 
     #create JWT token
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
