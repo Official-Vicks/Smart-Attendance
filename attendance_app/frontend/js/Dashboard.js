@@ -12,6 +12,11 @@ const API_BASE =
 // -------------------------------
 // Auth helpers
 // -------------------------------
+function isTokenExpired() {
+  const expiry = localStorage.getItem("token_expiry");
+  if (!expiry) return true;
+  return Date.now() > Number(expiry);
+}
 function getToken() {
   return localStorage.getItem("access_token");
 }
@@ -25,13 +30,13 @@ function getHeaders() {
 
 function logout() {
   localStorage.clear();
-  window.location.href = "index.html";
+  window.location.href = "login.html";
 }
 
 const role = localStorage.getItem("role");
 const userId = localStorage.getItem("user_id");
 
-if (!getToken()) {
+if (!getToken() || isTokenExpired()) {
   logout();
 }
 

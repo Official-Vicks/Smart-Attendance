@@ -66,6 +66,10 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("access_token", result.access_token);
         localStorage.setItem("role", result.role);
         localStorage.setItem("user_id", result.user_id);
+        localStorage.setItem(
+          "token_expiry",
+          Date.now() + result.expires_in * 1000
+        );
         // Redirect
         if (role === "student" || role === "lecturer") {
           window.location.replace("Dashboard.html");
