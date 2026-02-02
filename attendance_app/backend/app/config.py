@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     SUPABASE_SERVICE_ROLE_KEY: str
 
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60*24
+    ACCESS_TOKEN_EXPIRE_MINUTES: int
 
     CORS_ORIGINS: str = ""
 
@@ -30,3 +30,4 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
