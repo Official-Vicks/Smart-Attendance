@@ -67,7 +67,7 @@ def change_lecturer_password(
 
 # upload profile image
 @router.post("/profile/image")
-def upload_profile_image(
+def upload_profile_image_lecturer(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
     current_user=Depends(security.get_current_lecturer)
@@ -164,3 +164,4 @@ def close_session(
 
     db.commit()
     return {"message": "Session closed successfully"}
+
