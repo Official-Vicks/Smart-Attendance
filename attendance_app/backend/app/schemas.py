@@ -11,6 +11,7 @@ from datetime import date
 
 # Admin schemas
 class AdminCreate(BaseModel):
+    full_name: str
     email: EmailStr
     password: str = Field(..., min_length=6)
 # --------------------------
@@ -169,3 +170,4 @@ class AttendanceOut(BaseModel):
 
 
     model_config = {"from_attributes": True}
+
