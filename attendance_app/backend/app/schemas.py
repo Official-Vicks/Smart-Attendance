@@ -9,6 +9,10 @@ from typing import Optional, List
 import datetime 
 from datetime import date
 
+# Admin schemas
+class AdminCreate(BaseModel):
+    email: EmailStr
+    password: str = Field(..., min_length=6)
 # --------------------------
 # Shared by both roles
 # --------------------------
@@ -162,5 +166,6 @@ class AttendanceOut(BaseModel):
     course_title: str
     date: date
     status: str
+
 
     model_config = {"from_attributes": True}
