@@ -13,7 +13,7 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 import datetime
 from app.config import settings
-from app.routes import students, lecturers, auth, attendance, admin_auth, admin
+from app.routes import students, lecturers, auth, attendance, admin_auth, admin, admin_create
 from fastapi.openapi.utils import get_openapi
 from tests import test_attendance
 from fastapi.responses import FileResponse
@@ -48,6 +48,7 @@ app.include_router(attendance.router)
 app.include_router(test_attendance.router)
 app.include_router(admin_auth.router)
 app.include_router(admin.router)
+app.include_router(admin_create.router)
 
 @app.get("/health", tags=["health"])
 def health_check():
@@ -94,3 +95,4 @@ def custom_openapi():
 
 
 app.openapi = custom_openapi  # <-- ACTIVATE CUSTOM SWAGGER
+
