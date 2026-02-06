@@ -22,6 +22,7 @@ def bootstrap_admin(
         raise HTTPException(status_code=400, detail="Admin already exists")
 
     new_admin = Admin(
+        full_name=admin.full_name,
         email=admin.email,
         hashed_password=get_password_hash(admin.password),
         is_active=True
@@ -30,3 +31,4 @@ def bootstrap_admin(
     db.commit()
 
     return {"message": "Admin created successfully"}
+
