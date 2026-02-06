@@ -48,7 +48,6 @@ app.include_router(attendance.router)
 app.include_router(test_attendance.router)
 app.include_router(admin_auth.router)
 app.include_router(admin.router)
-app.include_router(admin_create.router)
 
 @app.get("/health", tags=["health"])
 def health_check():
@@ -95,4 +94,5 @@ def custom_openapi():
 
 
 app.openapi = custom_openapi  # <-- ACTIVATE CUSTOM SWAGGER
+
 
