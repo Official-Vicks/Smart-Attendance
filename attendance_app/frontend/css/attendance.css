@@ -1,0 +1,61 @@
+/* =========================
+   ATTENDANCE PAGE
+========================= */
+
+.attendance-wrapper {
+  background: var(--warm-grey);
+  min-height: calc(100vh - 120px);
+}
+
+/* Header icon accent */
+.attendance-wrapper h2 i {
+  color: var(--navcolor);
+}
+
+/* Table polish */
+.table thead th {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+/* Status cells (optional future use) */
+.status-present {
+  color: green;
+  font-weight: 600;
+}
+
+.status-absent {
+  color: crimson;
+  font-weight: 600;
+}
+
+/* =========================
+   ATTENDANCE STATUS BADGES
+========================= */
+
+.status-badge {
+  display: inline-block;
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+/* Safe semantic colors */
+.status-present {
+  background: rgba(25, 135, 84, 0.15);
+  color: #198754;
+}
+
+.status-absent {
+  background: rgba(220, 53, 69, 0.15);
+  color: #dc3545;
+}
+
+.status-late {
+  background: rgba(255, 193, 7, 0.2);
+  color: #856404;
+}

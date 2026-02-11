@@ -1,0 +1,156 @@
+/* =========================
+   HERO SECTION
+========================= */
+
+.hero-section {
+  position: relative;
+  min-height: 95vh;
+  display: flex;
+  align-items: center;
+  background: url("../assets/icons/attendancepic.jpg") center/cover no-repeat;
+  color: #ffffff;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-section h1 {
+  letter-spacing: -1px;
+}
+
+.hero-section p {
+  font-size: 20px;
+  max-width: 720px;
+  margin-inline: auto;
+}
+
+/* =========================
+   ABOUT SECTION
+========================= */
+
+#about-section {
+  background-color: #ffffff6e;
+}
+
+#about-section h2 {
+  letter-spacing: -0.5px;
+}
+
+#about-section p {
+  max-width: 800px;
+  margin-inline: auto;
+  line-height: 1.7;
+}
+
+.feature-card {
+  border: 1px solid var(--navcolor);
+  border-radius: 1.25rem;
+  padding: 2rem;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.12);
+}
+
+/* =========================
+   AUDIENCE SECTION
+========================= */
+
+#audience-section {
+  background: #f8f9fa;
+}
+
+.audience-card {
+  background: #ffffff;
+  border-radius: 1.5rem;
+  padding: 2.5rem 2rem;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.audience-card i {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.audience-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 25px 55px rgba(0, 0, 0, 0.15);
+}
+
+/* =========================
+   HOW IT WORKS
+========================= */
+
+.step-card {
+  border: 1px solid var(--navcolor);
+  border-radius: 1.5rem;
+  padding: 2.5rem 2rem;
+  position: relative;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.step-number {
+  position: absolute;
+  top: -15px;
+  right: -15px;
+  background: #000;
+  color: #fff;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+}
+
+/* =========================
+   CTA SECTION
+========================= */
+
+#cta-section {
+  background: linear-gradient(135deg, #000000, var(--navcolor));
+  color: #ffffff;
+}
+
+#cta-section p {
+  max-width: 700px;
+  margin-inline: auto;
+  opacity: 0.9;
+}
+
+/* =========================
+   RESPONSIVE (HOME ONLY)
+========================= */
+
+@media (max-width: 768px) {
+  .hero-section {
+    min-height: 80vh;
+    text-align: center;
+  }
+
+  .hero-section h1 {
+    font-size: 2.2rem;
+  }
+}
+
+/* Signup form */
+#signup-section {
+  background: linear-gradient(to bottom, #f6f6f6, #ffffff2d);
+}
+
+#signup-section .card {
+  border-radius: 1.5rem;
+}

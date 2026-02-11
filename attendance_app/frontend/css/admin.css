@@ -1,0 +1,23 @@
+/* =========================
+   ADMIN PAGE
+========================= */
+
+.admin-wrapper {
+  background: var(--warm-grey);
+  min-height: calc(100vh - 120px);
+}
+
+.admin-wrapper h2 i {
+  color: var(--navcolor);
+}
+
+/* Tabs polish */
+.nav-tabs .nav-link {
+  font-weight: 500;
+}
+
+.nav-tabs .nav-link.active {
+  background-color: var(--navcolor);
+  color: #000;
+  border: none;
+}

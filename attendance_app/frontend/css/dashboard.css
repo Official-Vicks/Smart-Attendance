@@ -1,0 +1,100 @@
+/* =========================
+   DASHBOARD LAYOUT
+========================= */
+
+.dashboard-wrapper {
+  background: var(--warm-grey);
+  min-height: calc(100vh - 120px);
+}
+
+.dashboard-header h2 {
+  letter-spacing: -0.5px;
+}
+
+/* =========================
+   TABLES
+========================= */
+
+.table thead th {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* =========================
+   ICON POLISH
+========================= */
+
+.card h4 i,
+h4 i {
+  color: var(--navcolor);
+}
+
+/* =========================
+   SESSION CARD STYLING
+========================= */
+
+/* Treat alerts like cards */
+#sessionCodeBox .alert {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-left: 6px solid var(--navcolor);
+  border-radius: 14px;
+  padding: 1rem 1.25rem;
+  color: #000;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+}
+
+/* Remove default Bootstrap green */
+#sessionCodeBox .alert-success {
+  --bs-alert-bg: transparent;
+  --bs-alert-border-color: transparent;
+  --bs-alert-color: inherit;
+}
+
+/* Course title hierarchy */
+#sessionCodeBox strong {
+  font-size: 1rem;
+  display: inline-block;
+}
+
+/* Session code emphasis */
+#sessionCodeBox b {
+  font-size: 0.95rem;
+  letter-spacing: 0.6px;
+  background: rgba(50, 204, 58, 0.12);
+  padding: 0.2rem 0.45rem;
+  border-radius: 6px;
+}
+
+/* Date alignment */
+#sessionCodeBox .float-end {
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+/* Buttons spacing & polish */
+#sessionCodeBox .btn {
+  margin-top: 0.5rem;
+}
+
+/* Copy button */
+#sessionCodeBox .btn-outline-secondary {
+  border-radius: 999px;
+  font-size: 0.75rem;
+}
+
+/* Close session button */
+#sessionCodeBox .btn-danger {
+  border-radius: 999px;
+  font-size: 0.75rem;
+}
+
+/* Closed badge */
+#sessionCodeBox .badge {
+  margin-top: 0.5rem;
+  padding: 0.45em 0.7em;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  letter-spacing: 0.4px;
+}

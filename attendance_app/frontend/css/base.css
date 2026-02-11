@@ -1,0 +1,177 @@
+/* =========================
+   DESIGN TOKENS & GLOBALS
+========================= */
+
+:root {
+  --warm-grey: #f8f7f4;
+  --warm-grey-dark: #4e4e4e;
+  --accent-grey: #d9d4cf;
+  --navcolor: #32cc3a;
+  --brand-dark: #0f1a0f;
+}
+
+body {
+  background-color: var(--warm-grey);
+  color: var(--warm-grey-dark);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* =========================
+   NAVBAR
+========================= */
+
+.navbar {
+  background-color: var(--navcolor);
+  backdrop-filter: blur(10px);
+}
+
+.navbar-brand {
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.navbar-brand,
+.nav-link {
+  color: var(--brand-dark) !important;
+}
+
+.nav-link {
+  position: relative;
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 2px;
+  left: 0;
+  bottom: -4px;
+  background: var(--brand-dark);
+  transition: width 0.3s ease;
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+.navbar-toggler {
+  border-color: rgba(0, 0, 0, 0.4);
+}
+
+.navbar-toggler-icon {
+  filter: brightness(0);
+}
+
+/* =========================
+   BUTTONS
+========================= */
+
+.btn {
+  transition: all 0.25s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+.btn-dark {
+  background-color: #152715;
+  border: none;
+}
+
+.btn-dark:hover {
+  background-color: #000;
+}
+
+/* =========================
+   CARDS (GLOBAL)
+========================= */
+
+.card {
+  border-radius: 1.2rem;
+  background: #ffffff;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+}
+
+/* =========================
+   FORMS
+========================= */
+
+.form-control,
+.form-select {
+  border-radius: 0.75rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #000;
+  box-shadow: 0 0 0 0.15rem rgba(0, 0, 0, 0.15);
+}
+
+/* =========================
+   SCROLL REVEAL (GLOBAL)
+========================= */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all 0.8s ease;
+}
+
+.reveal.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal.delay-1 {
+  transition-delay: 0.15s;
+}
+
+.reveal.delay-2 {
+  transition-delay: 0.3s;
+}
+
+.reveal.delay-3 {
+  transition-delay: 0.45s;
+}
+
+/* =========================
+   FOOTER
+========================= */
+
+footer {
+  background-color: var(--navcolor);
+  color: #000;
+}
+
+footer small {
+  opacity: 0.8;
+}
+
+/* =========================
+   UTILITIES
+========================= */
+
+table td,
+table th {
+  vertical-align: middle;
+}
+
+.dashboard-wrapper {
+  display: flex;
+  min-height: 50vh;
+}
+
+#loginCard {
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+#loginCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}

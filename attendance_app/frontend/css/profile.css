@@ -1,0 +1,28 @@
+/* =========================
+   PROFILE PAGE
+========================= */
+
+.profile-wrapper {
+  background: var(--warm-grey);
+  min-height: calc(100vh - 120px);
+}
+
+/* Profile avatar */
+.profile-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--navcolor);
+}
+
+/* Section icons */
+.profile-wrapper h4 i,
+.profile-wrapper h5 i {
+  color: var(--navcolor);
+}
+
+/* Card spacing harmony */
+.profile-wrapper .card {
+  border-radius: 14px;
+}

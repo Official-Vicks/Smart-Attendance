@@ -14,7 +14,12 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
-    <link href="css/style.css" rel="stylesheet" />
+    <link href="css/home.css" rel="stylesheet" />
+    <link rel="stylesheet" href="css/base.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+    />
   </head>
   <body>
     <!-- Navigation Bar -->
@@ -52,24 +57,21 @@
     </nav>
 
     <!-- Hero Section -->
-    <section id="intro-section">
-      <div class="container text-center">
-        <h1 class="display-5 fw-bold">Effortless Attendance Tracking</h1>
+    <section id="intro-section" class="hero-section">
+      <div class="hero-overlay"></div>
+
+      <div class="container text-center hero-content">
+        <h1 class="display-4 fw-bold">Effortless Attendance Tracking</h1>
         <p class="lead mt-3 mb-4">
           Empowering lecturers to record and manage class attendance seamlessly
           — secure, efficient, and modern.
         </p>
+
         <div class="mt-4">
-          <button class="btn btn-dark me-2 btn-lg" id="getStartedBtn">
-            <a class="text-decoration-none text-white" href="#signup-section"
-              >Get Started</a
-            >
-          </button>
-          <button
-            onclick="learnMore()"
-            class="btn btn-outline-dark btn-lg"
-            id="learnMoreBtn"
-          >
+          <a href="#signup-section" class="btn btn-dark btn-lg me-2">
+            Get Started
+          </a>
+          <button onclick="learnMore()" class="btn btn-outline-light btn-lg">
             About Us
           </button>
         </div>
@@ -77,48 +79,180 @@
     </section>
 
     <!-- About Section -->
-    <section class="py-5" id="about-section">
-      <div class="container text-center">
-        <h2 class="fw-bold mb-4">Why Choose Smart Attendance?</h2>
+    <section id="about-section" class="py-5">
+      <div class="container">
+        <!-- Section Intro -->
+        <div class="text-center mb-5 reveal">
+          <h2 class="fw-bold">Built for Modern Academic Environments</h2>
+          <p class="text-muted mt-3">
+            Smart Attendance is a secure, scalable attendance management system
+            designed to eliminate inefficiencies, reduce fraud, and improve
+            record accuracy across institutions.
+          </p>
+        </div>
+
+        <!-- Feature Grid -->
         <div class="row g-4">
-          <div class="col-md-4">
-            <div class="card border-0 h-100">
-              <div class="card-body">
-                <h5 class="card-title fw-bold text-secondary">
-                  Fast & Reliable
-                </h5>
-                <p class="card-text text-muted">
-                  Mark and manage attendance instantly without paperwork or
-                  delays.
-                </p>
-              </div>
+          <div class="col-md-4 reveal delay-1">
+            <div class="feature-card h-100">
+              <h5>Automated Attendance Tracking</h5>
+              <p>
+                Attendance is recorded digitally in real-time, reducing manual
+                errors and eliminating paper-based processes.
+              </p>
             </div>
           </div>
-          <div class="col-md-4">
-            <div class="card border-0 h-100">
-              <div class="card-body">
-                <h5 class="card-title fw-bold text-secondary">
-                  User-Friendly Interface
-                </h5>
-                <p class="card-text text-muted">
-                  An intuitive design that simplifies attendance marking for
-                  lecturers and students.
-                </p>
-              </div>
+
+          <div class="col-md-4 reveal delay-2">
+            <div class="feature-card h-100">
+              <h5>Role-Based Access Control</h5>
+              <p>
+                Separate dashboards for students and lecturers ensure that users
+                only access data relevant to their role.
+              </p>
             </div>
           </div>
-          <div class="col-md-4">
-            <div class="card border-0 h-100">
-              <div class="card-body">
-                <h5 class="card-title fw-bold text-secondary">Data Security</h5>
-                <p class="card-text text-muted">
-                  Attendance records are securely stored and accessible only by
-                  authorized users.
-                </p>
-              </div>
+
+          <div class="col-md-4 reveal delay-3">
+            <div class="feature-card h-100">
+              <h5>Secure & Reliable Data Storage</h5>
+              <p>
+                All attendance records are securely stored and protected against
+                unauthorized access.
+              </p>
+            </div>
+          </div>
+
+          <div class="col-md-4 reveal delay-1">
+            <div class="feature-card h-100">
+              <h5>Department-Level Organization</h5>
+              <p>
+                Supports multiple departments and courses, making it suitable
+                for universities, polytechnics, and colleges.
+              </p>
+            </div>
+          </div>
+
+          <div class="col-md-4 reveal delay-2">
+            <div class="feature-card h-100">
+              <h5>Attendance Analytics & Insights</h5>
+              <p>
+                Lecturers can monitor attendance trends and identify
+                participation patterns for better academic decisions.
+              </p>
+            </div>
+          </div>
+
+          <div class="col-md-4 reveal delay-3">
+            <div class="feature-card h-100">
+              <h5>Scalable & Future-Ready</h5>
+              <p>
+                Designed to grow with institutional needs, allowing seamless
+                integration of new features and modules.
+              </p>
             </div>
           </div>
         </div>
+      </div>
+    </section>
+
+    <section id="audience-section" class="py-5">
+      <div class="container">
+        <div class="text-center mb-5 reveal">
+          <h2 class="fw-bold">Who Smart Attendance Is For</h2>
+          <p class="text-muted mt-2">
+            Designed to support every key participant in the academic process.
+          </p>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-md-4 reveal delay-1">
+            <div class="audience-card text-center">
+              <i class="bi bi-person-badge"></i>
+              <h5>Lecturers</h5>
+              <p>
+                Easily manage class attendance, monitor participation, and
+                access attendance history.
+              </p>
+            </div>
+          </div>
+
+          <div class="col-md-4 reveal delay-2">
+            <div class="audience-card text-center">
+              <i class="bi bi-mortarboard"></i>
+              <h5>Students</h5>
+              <p>
+                View attendance records transparently and stay informed about
+                your class participation.
+              </p>
+            </div>
+          </div>
+
+          <div class="col-md-4 reveal delay-3">
+            <div class="audience-card text-center">
+              <i class="bi bi-building"></i>
+              <h5>Academic Administrators</h5>
+              <p>
+                Ensure accurate records, reduce disputes, and improve
+                institutional accountability.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="how-it-works" class="py-5">
+      <div class="container">
+        <div class="text-center mb-5 reveal">
+          <h2 class="fw-bold">How It Works</h2>
+          <p class="text-muted mt-2">
+            Get started in minutes with a simple and intuitive workflow.
+          </p>
+        </div>
+
+        <div class="row g-4 text-center">
+          <div class="col-md-4 reveal delay-1">
+            <div class="step-card">
+              <span class="step-number">1</span>
+              <i class="bi bi-person-plus"></i>
+              <h5>Create an Account</h5>
+              <p>Sign up as a student or lecturer and complete your profile.</p>
+            </div>
+          </div>
+
+          <div class="col-md-4 reveal delay-2">
+            <div class="step-card">
+              <span class="step-number">2</span>
+              <i class="bi bi-check2-square"></i>
+              <h5>Mark Attendance</h5>
+              <p>Lecturers record attendance digitally during lectures.</p>
+            </div>
+          </div>
+
+          <div class="col-md-4 reveal delay-3">
+            <div class="step-card">
+              <span class="step-number">3</span>
+              <i class="bi bi-bar-chart"></i>
+              <h5>View Records & Insights</h5>
+              <p>Access attendance history and participation analytics.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="cta-section" class="py-5 text-center">
+      <div class="container reveal">
+        <h2 class="fw-bold mb-3">Ready to Digitize Attendance Management?</h2>
+        <p class="mb-4">
+          Join institutions already moving towards smarter, faster, and more
+          secure attendance tracking.
+        </p>
+
+        <a href="#signup-section" class="btn btn-dark btn-lg px-5">
+          Get Started Now
+        </a>
       </div>
     </section>
 
@@ -325,5 +459,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/main.js"></script>
+    <script src="js/reveal.js"></script>
   </body>
 </html>

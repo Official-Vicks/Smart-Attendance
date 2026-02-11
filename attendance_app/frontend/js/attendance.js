@@ -143,9 +143,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function statusBadge(status) {
     if (status === "present")
-      return `<span class="badge bg-success">Present</span>`;
+      return `<span class="status-badge status-present">Present</span>`;
     if (status === "absent")
-      return `<span class="badge bg-danger">Absent</span>`;
+      return `<span class="status-badge status-absent">Absent</span>`;
     return `<span class="badge bg-secondary">${status}</span>`;
   }
 
