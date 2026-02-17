@@ -164,4 +164,3 @@ def close_session(
 
     db.commit()
     return {"message": "Session closed successfully"}
-

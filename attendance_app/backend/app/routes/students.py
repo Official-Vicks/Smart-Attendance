@@ -134,5 +134,4 @@ def verify_session_code(
     if not session.is_active or session.date < date.today():
         raise HTTPException(status_code=400, detail="Session is expired")
 
-
     return session

@@ -31,4 +31,3 @@ def bootstrap_admin(
     db.commit()
 
     return {"message": "Admin created successfully"}
-

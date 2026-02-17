@@ -10,6 +10,7 @@ from typing import List
 from app.database import get_db
 from app import crud, schemas, models
 from app.utils import security
+from typing import Optional
 
 router = APIRouter(prefix="/attendance", tags=["Attendance"])
 
@@ -84,23 +85,19 @@ def mark_attendance(
 # ======================================================
 @router.get("/records", response_model=List[schemas.AttendanceOut])
 def view_attendance_records(
-    date_filter: date = None,
+    date: Optional[date] = None,
+    course_code: Optional[str] = None,
     db: Session = Depends(get_db),
     current_user: models.Lecturer = Depends(security.get_current_lecturer)
 ):
-    """
-    Allows a lecturer to view attendance records.
-    Automatically filters by lecturer_id.
-    """
-    # Optional filter
-    if date_filter:
-        records = [record for record in records if record.date == date_filter]
-        
-    # Get all attendance for this lecturer
-    records = crud.get_attendance_for_lecturer(db, lecturer_id=current_user.id)
+    return crud.get_attendance_for_lecturer(
+        db=db,
+        lecturer_id=current_user.id,
+        date=date,
+        course_code=course_code
+    )
 
 
-    return records
 
 
 # ======================================================
