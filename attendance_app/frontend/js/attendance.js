@@ -28,11 +28,6 @@ document.addEventListener("DOMContentLoaded", () => {
       .forEach((el) => el.classList.remove("d-none"));
   }
 
-  // Default date = today
-  if (filterDateInput) {
-    filterDateInput.value = new Date().toISOString().slice(0, 10);
-  }
-
   function getHeaders() {
     return {
       "Content-Type": "application/json",
@@ -203,3 +198,4 @@ document.addEventListener("DOMContentLoaded", () => {
 
   applyFilters();
 });
+
