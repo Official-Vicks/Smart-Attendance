@@ -1,7 +1,7 @@
 // ===============================
 // Dashboard.js (REBUILT BASELINE)
 // ===============================
-// Handles lecturer and student dashboard logic + Phase 2 session workflow
+// Handles lecturer and student dashboard logic + session workflow
 
 currentSessionId = null;
 const API_BASE =

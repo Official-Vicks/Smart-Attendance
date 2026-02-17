@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const token = localStorage.getItem("access_token");
   const role = localStorage.getItem("role");
+  let attendanceData = [];
 
   if (!token) {
     window.location.href = "login.html";
@@ -47,14 +48,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function fetchAttendance() {
     const params = new URLSearchParams();
-    if (filterDateInput?.value) params.append("date", filterDateInput.value);
-    if (filterCourseInput?.value)
-      params.append("course", filterCourseInput.value);
+
+    if (filterDateInput?.value) {
+      params.append("date", filterDateInput.value);
+    }
+
+    if (filterCourseInput?.value) {
+      params.append("course_code", filterCourseInput.value);
+    }
 
     try {
+      console.log(`${API_BASE}${getEndpoint()}?${params.toString()}`);
+
       const res = await fetch(
         `${API_BASE}${getEndpoint()}?${params.toString()}`,
-        { headers: getHeaders() }
+        {
+          headers: getHeaders(),
+        }
       );
 
       if (!res.ok) {
@@ -73,12 +83,15 @@ document.addEventListener("DOMContentLoaded", () => {
     attendanceTableBody.innerHTML = "";
 
     if (!records.length) {
+      const colspan = role === "lecturer" ? 7 : 4;
+
       attendanceTableBody.innerHTML = `
-      <tr>
-        <td colspan="7" class="text-center text-muted py-4">
-          No attendance records found.
-        </td>
-      </tr>`;
+        <tr>
+          <td colspan="${colspan}" class="text-center text-muted py-4">
+            No attendance records found.
+          </td>
+        </tr>
+      `;
       return;
     }
 
@@ -86,31 +99,38 @@ document.addEventListener("DOMContentLoaded", () => {
       const tr = document.createElement("tr");
 
       tr.innerHTML = `
-      <td>${idx + 1}</td>
-      ${
-        role === "lecturer"
-          ? `
-        <td>${escapeHtml(r.student_name || "")}</td>
-        <td>${escapeHtml(r.registration_number || "")}</td>
-        <td>${escapeHtml(r.department || "")}</td>`
-          : ""
-      }
-      <td>${escapeHtml(r.course_code || "")}</td>
-      <td>${formatDate(r.date)}</td>
-      <td>${statusBadge(r.status)}</td>
-    `;
+        <td>${idx + 1}</td>
+        ${
+          role === "lecturer"
+            ? `
+          <td>${escapeHtml(r.student_name || "")}</td>
+          <td>${escapeHtml(r.registration_number || "")}</td>
+          <td>${escapeHtml(r.department || "")}</td>
+          `
+            : ""
+        }
+        <td>${escapeHtml(r.course_code || "")}</td>
+        <td>${formatDate(r.date)}</td>
+        <td>${statusBadge(r.status)}</td>
+      `;
 
       attendanceTableBody.appendChild(tr);
     });
   }
 
   async function applyFilters() {
+    console.log("Apply filters clicked");
     showAlert("Loading attendance...", "info", 1200);
-    const data = await fetchAttendance();
-    populateTable(data);
+    attendanceData = await fetchAttendance();
+    populateTable(attendanceData);
   }
 
   function exportToCSV() {
+    if (!attendanceData.length) {
+      showAlert("Nothing to export", "warning");
+      return;
+    }
+
     const rows = attendanceTableBody.querySelectorAll("tr");
     if (!rows.length) {
       showAlert("Nothing to export", "warning");
@@ -118,9 +138,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     let csv = [];
+
     const headers = Array.from(
       document.querySelectorAll("#attendanceTable thead th")
     ).map((h) => `"${h.textContent.trim()}"`);
+
     csv.push(headers.join(","));
 
     rows.forEach((row) => {
@@ -135,18 +157,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const a = document.createElement("a");
     a.href = url;
-    a.download = `attendance_${role}.csv`;
+    a.download = `attendance_${role}_${new Date()
+      .toISOString()
+      .slice(0, 10)}.csv`;
     a.click();
 
     URL.revokeObjectURL(url);
   }
 
   function statusBadge(status) {
-    if (status === "present")
+    if (status === "present") {
       return `<span class="status-badge status-present">Present</span>`;
-    if (status === "absent")
+    }
+    if (status === "absent") {
       return `<span class="status-badge status-absent">Absent</span>`;
-    return `<span class="badge bg-secondary">${status}</span>`;
+    }
+    return `<span class="badge bg-secondary">${escapeHtml(status)}</span>`;
   }
 
   function formatDate(dateStr) {
@@ -155,9 +181,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function escapeHtml(text) {
     return String(text)
-      .replaceAll("&", "&")
-      .replaceAll("<", "<")
-      .replaceAll(">", ">");
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
   }
 
   function showAlert(msg, type = "info", timeout = 2500) {
@@ -166,6 +194,7 @@ document.addEventListener("DOMContentLoaded", () => {
     alert.style.zIndex = "1055";
     alert.textContent = msg;
     document.body.appendChild(alert);
+
     setTimeout(() => alert.remove(), timeout);
   }
 
