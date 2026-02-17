@@ -300,13 +300,24 @@ def get_attendance_by_student_and_session(db, student_id: int, session_id: int):
         .first()
     )
 
-def get_attendance_for_lecturer(db: Session, lecturer_id: int):
-    return (
-        db.query(models.Attendance)
-        .filter(models.Attendance.lecturer_id == lecturer_id)
-        .order_by(models.Attendance.created_at.desc())
-        .all()
+def get_attendance_for_lecturer(
+    db: Session,
+    lecturer_id: int,
+    date: Optional[date] = None,
+    course_code: Optional[str] = None
+):
+    query = db.query(models.Attendance).filter(
+        models.Attendance.lecturer_id == lecturer_id
     )
+
+    if date:
+        query = query.filter(models.Attendance.date == date)
+
+    if course_code:
+        query = query.filter(models.Attendance.course_code == course_code)
+
+    return query.all()
+
 def get_attendance_by_id(db: Session, attendance_id: int):
     """Get a specific attendance record by ID"""
     return db.query(models.Attendance).filter(models.Attendance.id == attendance_id).first()
