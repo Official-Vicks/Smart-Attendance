@@ -94,26 +94,3 @@ def login_student(payload: schemas.StudentLogin, db: Session = Depends(get_db)):
     "user_id": user.id,
     "role": "student"
 }
-
-# ======================================================
-# GET ALL REGISTERED STUDENTS
-# ======================================================
-@router.get("/students", response_model=List[schemas.StudentOut])
-def get_all_students(db: Session = Depends(get_db)):
-    """
-    Fetch all registered students.
-    """
-    students = db.query(models.Student).all()
-    return students
-
-
-# ======================================================
-# GET ALL REGISTERED LECTURERS
-# ======================================================
-@router.get("/lecturers", response_model=List[schemas.LecturerOut])
-def get_all_lecturers(db: Session = Depends(get_db)):
-    """
-    Fetch all registered lecturers.
-    """
-    lecturers = db.query(models.Lecturer).all()
-    return lecturers
