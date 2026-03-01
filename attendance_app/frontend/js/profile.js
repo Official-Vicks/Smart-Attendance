@@ -45,6 +45,7 @@ async function loadProfile() {
 
   document.getElementById("fullName").value = data.full_name;
   document.getElementById("email").value = data.email;
+  document.getElementById("school").value = data.school;
 
   if (role === "student") {
     document.querySelector(".student-only").classList.remove("d-none");
