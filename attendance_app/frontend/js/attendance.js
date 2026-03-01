@@ -198,4 +198,3 @@ document.addEventListener("DOMContentLoaded", () => {
 
   applyFilters();
 });
-

@@ -82,6 +82,39 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  async function getSchools() {
+    const schoolSelect = document.getElementById("schoolSelect");
+
+    try {
+      const response = await fetch(
+        "https://smart-attendance-api-q5ul.onrender.com/schools/allSchools"
+      );
+
+      const schools = await response.json();
+
+      // Clear existing options
+      schoolSelect.innerHTML = "";
+
+      // Default option
+      const defaultOption = document.createElement("option");
+      defaultOption.value = "";
+      defaultOption.textContent = "Select a School";
+      schoolSelect.appendChild(defaultOption);
+
+      // Populate schools
+      schools.forEach((school) => {
+        const option = document.createElement("option");
+        option.value = school.name; // 👈 send name to backend
+        option.textContent = school.name;
+        schoolSelect.appendChild(option);
+      });
+    } catch (error) {
+      console.error("Failed to load schools:", error);
+      schoolSelect.innerHTML = `<option value="">Error loading schools</option>`;
+    }
+  }
+
+  getSchools();
   // initial UI state
   updateRoleUI();
   roleSelect.addEventListener("change", updateRoleUI);
@@ -146,7 +179,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // FORM SUBMIT
   signupForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-
+    const schoolName = document.getElementById("schoolSelect").value;
     const fullName = fullNameInput.value.trim();
     const email = emailInput.value.trim();
     const password = passwordInput.value; // keep raw for server-side validation
@@ -157,7 +190,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const course = courseInput.value.trim();
     const phone = phoneInput.value.trim();
 
-    if (!fullName || !email || !password || !role) {
+    if (!fullName || !email || !password || !role || !schoolName) {
       return showAlert("Please complete all required fields.", "warning");
     }
 
@@ -165,9 +198,9 @@ document.addEventListener("DOMContentLoaded", () => {
     let payload = {};
 
     if (role === "student") {
-      if (!registration_number || !department) {
+      if (!registration_number || !department || !school) {
         return showAlert(
-          "Please provide registration number and department for students.",
+          "Please provide registration number, school and department for students.",
           "warning"
         );
       }
@@ -178,13 +211,24 @@ document.addEventListener("DOMContentLoaded", () => {
         password,
         registration_number,
         department,
+        schoolName: schoolName,
       };
     } else if (role === "lecturer") {
-      if (!course) {
-        return showAlert("Please provide course for lecturers.", "warning");
+      if (!course || !schoolName) {
+        return showAlert(
+          "Please provide course and school for lecturers.",
+          "warning"
+        );
       }
       url = `${BASE_URL}/auth/register/lecturer`;
-      payload = { full_name: fullName, email, password, course, phone };
+      payload = {
+        full_name: fullName,
+        email,
+        password,
+        course,
+        phone,
+        schoolName: schoolName,
+      };
     } else {
       return showAlert("Please select a valid role.", "warning");
     }
