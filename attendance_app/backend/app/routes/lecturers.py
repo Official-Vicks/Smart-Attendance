@@ -40,7 +40,7 @@ def update_lecturer_profile(
         if crud.lecturer_email_exists(db, updates.email, exclude_id=current_lecturer.id):
             raise HTTPException(status_code=400, detail="Email already in use")
 
-    updated = crud.update_lecturer(db, current_lecturer.id, updates.model_dump())
+    updated = crud.update_lecturer(db, current_lecturer.id, current_lecturer.school_id, updates.model_dump())
     if not updated:
         raise HTTPException(status_code=404, detail="Lecturer not found")
     return updated
@@ -102,7 +102,7 @@ def get_all_students(
     db: Session = Depends(get_db),
     current_lecturer: models.Lecturer = Depends(security.get_current_lecturer)
 ):
-    students = crud.get_all_students(db)
+    students = crud.get_all_students(db, current_lecturer.school_id)
     return students
 
 
@@ -114,7 +114,7 @@ def get_all_attendance_records(
     db: Session = Depends(get_db),
     current_user: models.Lecturer = Depends(security.get_current_lecturer)
 ):
-    records = crud.get_attendance_for_lecturer(db, current_user.id)
+    records = crud.get_attendance_for_lecturer(db, current_user.id, current_user.school_id)
     return records
 
 
@@ -129,7 +129,7 @@ def create_attendance_session(
 ):
     """Lecturer creates a new attendance session with unique session code"""
 
-    session = crud.create_attendance_session(db, session_in, lecturer_id=current_lecturer.id, lecturer_name=current_lecturer.full_name)
+    session = crud.create_attendance_session(db, session_in, lecturer_id=current_lecturer.id, lecturer_name=current_lecturer.full_name, school_id=current_lecturer.school_id)
     return session
 
 @router.get("/me/sessions")

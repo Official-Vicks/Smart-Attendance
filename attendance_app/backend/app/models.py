@@ -13,6 +13,7 @@ import uuid
 
 #---------------------------
 # Admin Model
+#---------------------------
 class Admin(Base):
     __tablename__ = "admins"
 
@@ -22,6 +23,24 @@ class Admin(Base):
     hashed_password = Column(String, nullable=False)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+# -----------------------------
+# School model
+# -----------------------------
+class School(Base):
+    __tablename__ = "schools"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(225), unique=True, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    # Relationships
+    students = relationship("Student", back_populates="school", cascade="all, delete")
+    lecturers = relationship("Lecturer", back_populates="school", cascade="all, delete")
+    courses = relationship("Course", back_populates="school", cascade="all, delete")
+    attendance_records = relationship("Attendance", back_populates="school", cascade="all, delete")
+    attendance_sessions = relationship("AttendanceSession", back_populates="school", cascade="all, delete")
+
 # ----------------------------
 # Lecturer Model
 # ----------------------------
@@ -35,6 +54,7 @@ class Lecturer(Base):
     course = Column(String(225))
     profile_image = Column(String(225), nullable=True)
     is_active = Column(Boolean, default=True)
+    school_id = Column(Integer, ForeignKey("schools.id"), nullable=False)
 
 
     # Relationships
@@ -42,6 +62,7 @@ class Lecturer(Base):
     attendance_records = relationship("Attendance", back_populates="lecturer")
     courses = relationship("Course", back_populates="lecturer")
     attendance_sessions = relationship("AttendanceSession", back_populates="lecturer")
+    school = relationship("School", back_populates="lecturers")
 
 
 # ----------------------------
@@ -58,11 +79,12 @@ class Student(Base):
     department = Column(String(225))
     profile_image = Column(String(225), nullable=True)
     is_active = Column(Boolean, default=True)
+    school_id = Column(Integer, ForeignKey("schools.id"), nullable=False)
 
 
     lecturer_id = Column(Integer, ForeignKey("lecturers.id"))
     lecturer = relationship("Lecturer", back_populates="students")
-
+    school = relationship("School", back_populates="students")
     attendance_records = relationship("Attendance", back_populates="student")
 
 
@@ -94,9 +116,11 @@ class Attendance(Base):
     date = Column(Date, nullable=False, index=True)
     status = Column(String(225), nullable=False, default="present")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    school_id = Column(Integer, ForeignKey("schools.id"), nullable=False)
 
     # Relationships
     student = relationship("Student", back_populates="attendance_records")
+    school = relationship("School", back_populates="attendance_records")
     lecturer = relationship("Lecturer", back_populates="attendance_records")
     session = relationship("AttendanceSession")
 
@@ -112,8 +136,10 @@ class Course(Base):
     code = Column(String(225), unique=True, nullable=False)
 
     lecturer_id = Column(Integer, ForeignKey("lecturers.id"), nullable=False)
+    school_id = Column(Integer, ForeignKey("schools.id"), nullable=False)
 
     lecturer = relationship("Lecturer", back_populates="courses")
+    school = relationship("School", back_populates="courses")
 
 
 # ----------------------------
@@ -134,7 +160,9 @@ class AttendanceSession(Base):
     session_code = Column(String(225), unique=True, nullable=False)
     is_active = Column(Boolean, default=True)
     closed_at = Column(DateTime, nullable=True)
+    school_id = Column(Integer, ForeignKey("schools.id"), nullable=False)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     lecturer = relationship("Lecturer", back_populates="attendance_sessions")
+    school = relationship("School", back_populates="attendance_sessions")

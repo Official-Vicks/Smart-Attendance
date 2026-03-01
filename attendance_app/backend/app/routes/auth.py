@@ -27,7 +27,7 @@ def register_lecturer(lecturer: schemas.LecturerCreate, db: Session = Depends(ge
     existing = crud.lecturer_email_exists(db, lecturer.email)
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
-
+    
     # Pass the Pydantic model to crud.create_lecturer (it will hash password)
     new_lecturer = crud.create_lecturer(db, lecturer)
     return new_lecturer
@@ -52,20 +52,27 @@ def login_lecturer(payload: schemas.LecturerLogin, db: Session = Depends(get_db)
     Lecturer login endpoint.
     Accepts JSON: { email, password }
     """
-    user = crud.authenticate_lecturer(db, payload.email, payload.password)
+    lecturer = db.query(models.Lecturer).filter(
+        models.Lecturer.email == payload.email
+        ).first()
+    school = db.query(models.School).filter(
+        models.School.id == lecturer.school_id
+    ).first()
+    user = crud.authenticate_lecturer(db, payload.email, payload.password, school.id)
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email, password, or non-existing account")
 
     #create JWT token
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = security.create_access_token(
-        data={"email": user.email, "role": "lecturer", "user_id": user.id},
+        data={"email": user.email, "role": "lecturer", "user_id": user.id, "school_id": user.school_id},
         expires_delta=access_token_expires
     )
     return {
     "access_token": access_token,
     "token_type": "bearer",
     "user_id": user.id,
+    "school_id": user.school_id,
     "role": "lecturer",
     "expires_in": settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60}
 
@@ -78,19 +85,26 @@ def login_student(payload: schemas.StudentLogin, db: Session = Depends(get_db)):
     Student login endpoint.
     Accepts JSON: { email, password }
     """
-    user = crud.authenticate_student(db, payload.email, payload.password)
+    student = db.query(models.Student).filter(
+        models.Student.email == payload.email
+        ).first()
+    school = db.query(models.School).filter(
+        models.School.id == student.school_id
+    ).first()
+    user = crud.authenticate_student(db, payload.email, payload.password, school.id)
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email, password or non-existing account")
 
     #create JWT token
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = security.create_access_token(
-        data={"email": user.email, "role": "student", "user_id": user.id},
+        data={"email": user.email, "role": "student", "user_id": user.id, "school_id": user.school_id},
         expires_delta=access_token_expires
     )
     return {
     "access_token": access_token,
     "token_type": "bearer",
     "user_id": user.id,
+    "school_id": user.school_id,
     "role": "student"
 }

@@ -13,13 +13,15 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 import datetime
 from app.config import settings
-from app.routes import students, lecturers, auth, attendance, admin_auth, admin, admin_create
+from app.routes import students, lecturers, auth, attendance, admin_auth, admin, admin_create, schools
 from fastapi.openapi.utils import get_openapi
 from tests import test_attendance
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from app.models import Base
-from app.database import engine
+from app import models
+from sqlalchemy.orm import Session
+from app.database import get_db, engine
 import os
 
 
@@ -48,7 +50,20 @@ app.include_router(attendance.router)
 app.include_router(test_attendance.router)
 app.include_router(admin_auth.router)
 app.include_router(admin.router)
+app.include_router(schools.router)
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PROJECT_ROOT = os.path.dirname(BASE_DIR)
+
+
+
+FRONTEND_DIR = os.path.join(PROJECT_ROOT, "frontend")
+
+app.mount(
+    "/",
+    StaticFiles(directory=FRONTEND_DIR, html=True),
+    name="frontend"
+)
 @app.get("/health", tags=["health"])
 def health_check():
     return {"status": "ok", "timestamp": datetime.datetime.utcnow()}
@@ -92,7 +107,4 @@ def custom_openapi():
     return app.openapi_schema
 
 
-
 app.openapi = custom_openapi  # <-- ACTIVATE CUSTOM SWAGGER
-
-

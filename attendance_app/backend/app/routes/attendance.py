@@ -32,7 +32,8 @@ def mark_attendance(
     # Get the session
     session = crud.get_attendance_session_by_id(
         db=db,
-        session_id=attendance_data.session_id
+        session_id=attendance_data.session_id,
+        school_id=current_user.school_id
     )
 
     if not session:
@@ -53,7 +54,8 @@ def mark_attendance(
     existing = crud.get_attendance_by_student_and_session(
         db=db,
         student_id=current_user.id,
-        session_id=session.id
+        session_id=session.id,
+        school_id=current_user.school_id
     )
 
     if existing:
@@ -73,6 +75,7 @@ def mark_attendance(
         course_code=session.course_code,
         course_title=session.course_title,
         date=session.date,
+        school_id=current_user.school_id,
         status="present"
     )
 
@@ -93,6 +96,7 @@ def view_attendance_records(
     return crud.get_attendance_for_lecturer(
         db=db,
         lecturer_id=current_user.id,
+        school_id=current_user.school_id,
         date=date,
         course_code=course_code
     )
@@ -114,7 +118,7 @@ def delete_attendance_record(
     Only deletes if the record belongs to the logged-in lecturer.
     """
 
-    attendance = crud.get_attendance_by_id(db, attendance_id)
+    attendance = crud.get_attendance_by_id(db, attendance_id, current_user.school_id)
 
     if not attendance:
         raise HTTPException(status_code=404, detail="Attendance not found")
@@ -136,7 +140,8 @@ def check_attendance_status(
     attendance = crud.get_attendance_by_student_and_session(
         db=db,
         student_id=current_student.id,
-        session_id=session_id
+        session_id=session_id,
+        school_id=current_student.school_id
     )
 
     return {
@@ -150,5 +155,6 @@ def view_my_attendance(
 ):
     return crud.get_attendance_by_student(
         db=db,
+        school_id=current_student.school_id,
         student_id=current_student.id
     )

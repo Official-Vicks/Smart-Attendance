@@ -24,17 +24,18 @@ def admin_list_students(
 ):
     students = db.query(models.Student).all()
 
-    return [
-        {
-            "id": s.id,
-            "full_name": s.full_name,
-            "email": s.email,
-            "registration_number": s.registration_number,
-            "department": s.department,
-            "is_active": s.is_active
-        }
-        for s in students
-    ]
+    # return [
+    #     {
+    #         "id": s.id,
+    #         "full_name": s.full_name,
+    #         "email": s.email,
+    #         "registration_number": s.registration_number,
+    #         "department": s.department,
+    #         "is_active": s.is_active
+    #     }
+    #     for s in students
+    # ]
+    return students
 
 @router.get("/lecturers")
 def admin_list_lecturers(
@@ -99,3 +100,4 @@ def admin_reactivate_account(
     db.commit()
 
     return {"message": f"{role.capitalize()} account reactivated"}
+

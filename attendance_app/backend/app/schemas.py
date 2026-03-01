@@ -6,14 +6,14 @@ Used for request validation and response serialization.
 
 from pydantic import BaseModel, EmailStr, Field
 from typing import Optional, List
-import datetime 
-from datetime import date
+from datetime import date, datetime
 
 # Admin schemas
 class AdminCreate(BaseModel):
     full_name: str
     email: EmailStr
     password: str = Field(..., min_length=6)
+
 # --------------------------
 # Shared by both roles
 # --------------------------
@@ -35,11 +35,13 @@ class LecturerBase(BaseModel):
 
 class LecturerCreate(LecturerBase):
     password: str = Field(..., min_length=6)
+    school_name: str
 
 
 class LecturerOut(LecturerBase):
     id: int
     profile_image: Optional[str] = None
+    school_id: int
 
     model_config = {"from_attributes": True}
 
@@ -67,11 +69,13 @@ class StudentBase(BaseModel):
 
 class StudentCreate(StudentBase):
     password: str = Field(..., min_length=6)
+    school_name: str
 
 
 class StudentOut(StudentBase):
     id: int
     profile_image: Optional[str] = None
+    school_id: int
 
     model_config = {"from_attributes": True}
 
@@ -99,7 +103,7 @@ class MyAttendanceOut(BaseModel):
 # ATTENDANCE SCHEMAS
 # ----------------------------
 class AttendanceBase(BaseModel):
-    date: datetime.date
+    date: date
     status: str = "present"
 
 
@@ -117,7 +121,8 @@ class Token(BaseModel):
     access_token: str
     token_type: str
     user_id: int
-    role: str
+    role: str 
+    school_id: int
 
 
 class TokenData(BaseModel):
@@ -138,7 +143,7 @@ class Message(BaseModel):
 class AttendanceSessionCreate(BaseModel):
     course_code:str
     course_title:str
-    date:datetime.date
+    date:date
 
 
 class AttendanceMarkCreate(BaseModel):
@@ -168,6 +173,14 @@ class AttendanceOut(BaseModel):
     date: date
     status: str
 
-
     model_config = {"from_attributes": True}
 
+class SchoolCreate(BaseModel):
+    name: str
+
+class SchoolOut(BaseModel):
+    id: int
+    name: str
+    created_at: datetime
+
+    model_config = {"from_attributes": True}

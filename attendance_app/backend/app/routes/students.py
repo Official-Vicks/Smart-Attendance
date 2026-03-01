@@ -40,7 +40,7 @@ def update_student_profile(
         if crud.student_email_exists(db, updates.email, exclude_id=current_student.id):
             raise HTTPException(status_code=400, detail="Email already in use")
 
-    updated = crud.update_student(db, current_student.id, updates.model_dump())
+    updated = crud.update_student(db, current_student.id, current_student.school_id, updates.model_dump())
     if not updated:
         raise HTTPException(status_code=404, detail="Student not found")
     return updated
@@ -101,7 +101,7 @@ def get_my_attendance_records(
     db: Session = Depends(get_db),
     current_user: models.Student = Depends(security.get_current_student)
 ):
-    records = crud.get_attendance_by_student(db, current_user.id)
+    records = crud.get_attendance_by_student(db, current_user.id, current_user.school_id)
     output = []
     for rec in records:
         output.append({
@@ -126,7 +126,7 @@ def verify_session_code(
 ):
     """Student enters the generated attendance code to access session"""
 
-    session = crud.get_session_by_code(db, session_code)
+    session = crud.get_session_by_code(db, session_code, current_student.school_id)
 
     if not session:
         raise HTTPException(status_code=404, detail="Invalid or expired session code")

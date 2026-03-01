@@ -70,15 +70,16 @@ def get_current_user(
 
     email = payload.get("email")
     role = payload.get("role")
+    school_id = payload.get("school_id")
 
     if not email or not role:
         raise HTTPException(status_code=401, detail="Invalid authentication data")
 
     # Fetch user
     if role == "student":
-        user = crud.get_student_by_email(db, email)
+        user = crud.get_student_by_email(db, email, school_id)
     elif role == "lecturer":
-        user = crud.get_lecturer_by_email(db, email)
+        user = crud.get_lecturer_by_email(db, email, school_id)
     elif role == "admin":
         user = crud.get_admin_by_email(db, email)
 
