@@ -52,18 +52,6 @@ app.include_router(admin_auth.router)
 app.include_router(admin.router)
 app.include_router(schools.router)
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PROJECT_ROOT = os.path.dirname(BASE_DIR)
-
-
-
-FRONTEND_DIR = os.path.join(PROJECT_ROOT, "frontend")
-
-app.mount(
-    "/",
-    StaticFiles(directory=FRONTEND_DIR, html=True),
-    name="frontend"
-)
 @app.get("/health", tags=["health"])
 def health_check():
     return {"status": "ok", "timestamp": datetime.datetime.utcnow()}
@@ -105,6 +93,7 @@ def custom_openapi():
 
     app.openapi_schema = openapi_schema
     return app.openapi_schema
+
 
 
 app.openapi = custom_openapi  # <-- ACTIVATE CUSTOM SWAGGER
