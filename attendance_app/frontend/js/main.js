@@ -198,7 +198,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let payload = {};
 
     if (role === "student") {
-      if (!registration_number || !department || !school) {
+      if (!registration_number || !department || !schoolName) {
         return showAlert(
           "Please provide registration number, school and department for students.",
           "warning"
