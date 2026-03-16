@@ -298,6 +298,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
+const backToTopBtn = document.getElementById("backToTop");
 
 // Show button when user scrolls down
 window.addEventListener("scroll", () => {
