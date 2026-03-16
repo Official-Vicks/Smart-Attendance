@@ -163,7 +163,7 @@
 
   display: none;
 
-  background-color: #0d6efd;
+  background-color: #32cc3a;
   color: white;
   border: none;
   border-radius: 50%;
@@ -179,6 +179,6 @@
 }
 
 #backToTop:hover {
-  background-color: #084298;
+  background-color: #1ac223;
   transform: scale(1.1);
 }
