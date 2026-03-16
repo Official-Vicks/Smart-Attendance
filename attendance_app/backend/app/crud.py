@@ -107,7 +107,6 @@ def create_lecturer(db: Session, lecturer_in: schemas.LecturerCreate):
         email=lecturer_in.email,
         hashed_password=get_password_hash(lecturer_in.password),
         course=lecturer_in.course,
-        school_name = school.name,
         school_id = school.id
     )
     db.add(lecturer)
@@ -202,7 +201,6 @@ def create_student(db: Session, student_in: schemas.StudentCreate):
         registration_number=student_in.registration_number,
         department=student_in.department,
         hashed_password=get_password_hash(student_in.password),
-        school_name = school.name,
         school_id = school.id
     )
     db.add(student)
