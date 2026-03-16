@@ -92,7 +92,7 @@ def get_lecturer(db: Session, lecturer_id: int, school_id:int):
     return db.query(models.Lecturer).filter(models.Lecturer.id == lecturer_id).first().filter(models.Lecturer.school_id == school_id)
 
 def create_lecturer(db: Session, lecturer_in: schemas.LecturerCreate):
-    if get_lecturer_by_email(db, lecturer_in.email):
+    if lecturer_email_exists(db, lecturer_in.email):
         raise ValueError("Lecturer with this email already exists")
     
     school = db.query(models.School).filter(
@@ -185,7 +185,7 @@ def get_all_students(db: Session, school_id:int):
     return db.query(models.Student).filter(models.Student.school_id == school_id).all()
 
 def create_student(db: Session, student_in: schemas.StudentCreate):
-    if (get_student_by_email(db, student_in.email)
+    if (student_email_exists(db, student_in.email)
         or get_student_by_registration(db, student_in.registration_number)):
         raise ValueError("Student with this email or registration number already exists")
     
