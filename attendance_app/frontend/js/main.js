@@ -40,6 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const passwordInput = document.getElementById("password");
   const regInput = document.getElementById("registrationNumber");
   const deptSelect = document.getElementById("department");
+  const schoolSelect = document.getElementById("schoolSelect");
   const courseInput = document.getElementById("course");
   const phoneInput = document.getElementById("number"); // consider renaming to phoneNumber
   const submitBtn = signupForm.querySelector('[type="submit"]');
@@ -83,8 +84,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function getSchools() {
-    const schoolSelect = document.getElementById("schoolSelect");
-
     try {
       const response = await fetch(
         "https://smart-attendance-api-q5ul.onrender.com/schools/allSchools"
@@ -179,7 +178,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // FORM SUBMIT
   signupForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const schoolName = document.getElementById("schoolSelect").value;
+    const schoolName = schoolSelect.value;
     const fullName = fullNameInput.value.trim();
     const email = emailInput.value.trim();
     const password = passwordInput.value; // keep raw for server-side validation
@@ -211,7 +210,7 @@ document.addEventListener("DOMContentLoaded", () => {
         password,
         registration_number,
         department,
-        schoolName: schoolName,
+        school_name: schoolName,
       };
     } else if (role === "lecturer") {
       if (!course || !schoolName) {
@@ -227,7 +226,7 @@ document.addEventListener("DOMContentLoaded", () => {
         password,
         course,
         phone,
-        schoolName: schoolName,
+        school_name: schoolName,
       };
     } else {
       return showAlert("Please select a valid role.", "warning");
