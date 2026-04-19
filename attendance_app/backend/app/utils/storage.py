@@ -7,7 +7,7 @@ supabase = create_client(
     settings.SUPABASE_SERVICE_ROLE_KEY
 )
 
-def upload_profile_image(file, user_id: int):
+def upload_profile_image(file, user_id: uuid.UUID):
     ext = file.filename.split(".")[-1]
     filename = f"user_{user_id}_{uuid.uuid4()}.{ext}"
 

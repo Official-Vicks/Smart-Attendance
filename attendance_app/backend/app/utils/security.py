@@ -3,10 +3,10 @@ security.py
 Handles:
 - Token-based authentication (JWT creation & verification)
 - Current user retrieval
-- Role-based access control (student or lecturer)
+- Role-based access control (student, lecturer, admin)
 """
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
@@ -15,6 +15,7 @@ from datetime import datetime, timedelta
 from app.database import get_db
 from app import models, crud
 from app.config import settings
+from app.core.request_context import user_id_ctx, school_id_ctx, role_ctx
 
 bearer_scheme = HTTPBearer()
 
@@ -22,17 +23,15 @@ bearer_scheme = HTTPBearer()
 # JWT: Create Access Token
 # ------------------------------------
 def create_access_token(data: dict, expires_delta: timedelta = None):
-    """
-    Generate a JWT access token.
-    - data: dictionary containing user data (email, role, user_id)
-    """
     to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.utcnow() + expires_delta
-    else:
-        expire = datetime.utcnow() + timedelta(minutes=15)
 
-    to_encode.update({"exp": expire})
+    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=15))
+
+    to_encode.update({
+        "exp": expire,
+        "sub": str(data.get("user_id"))  # standard JWT subject
+    })
+
     encoded_jwt = jwt.encode(
         to_encode,
         settings.SECRET_KEY,
@@ -40,11 +39,11 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
     )
     return encoded_jwt
 
+
 # ------------------------------------
 # Decode token and get payload
 # ------------------------------------
 def verify_token(token: str):
-    """Decode JWT token and return payload if valid"""
     try:
         payload = jwt.decode(
             token,
@@ -58,15 +57,19 @@ def verify_token(token: str):
             detail="Invalid or expired token",
         )
 
+
 # ------------------------------------
 # Retrieve current logged-in user
 # ------------------------------------
-def get_current_user(
+async def get_current_user(   # ✅ CHANGED TO ASYNC
+    request: Request,
     credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
     db: Session = Depends(get_db)
 ):
-    token = credentials.credentials  # <-- RAW JWT
+    token = credentials.credentials
     payload = verify_token(token)
+
+    request.state.user = payload  # optional (still useful)
 
     email = payload.get("email")
     role = payload.get("role")
@@ -75,30 +78,39 @@ def get_current_user(
     if not email or not role:
         raise HTTPException(status_code=401, detail="Invalid authentication data")
 
-    # Fetch user
+    # Fetch user from DB
     if role == "student":
         user = crud.get_student_by_email(db, email, school_id)
     elif role == "lecturer":
         user = crud.get_lecturer_by_email(db, email, school_id)
     elif role == "admin":
         user = crud.get_admin_by_email(db, email)
+    else:
+        raise HTTPException(status_code=401, detail="Invalid role")
 
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    
-     # SOFT DELETE CHECK (HERE)
+
     if not user.is_active:
         raise HTTPException(
             status_code=403,
             detail="Account is deactivated"
         )
 
+    # 🔥 SET LOGGING CONTEXT (trusted DB data)
+    user_id_ctx.set(str(user.id))
+    school_id_ctx.set(str(user.school_id) if hasattr(user, "school_id") else None)
+    role_ctx.set(role)
+
     return {"role": role, "user": user}
+
 
 # ------------------------------------
 # Restrict to students only
 # ------------------------------------
-def get_current_student(current=Depends(get_current_user)):
+async def get_current_student(   # ✅ ASYNC
+    current=Depends(get_current_user)
+):
     if current["role"] != "student":
         raise HTTPException(
             status_code=403,
@@ -106,10 +118,13 @@ def get_current_student(current=Depends(get_current_user)):
         )
     return current["user"]
 
+
 # ------------------------------------
 # Restrict to lecturers only
 # ------------------------------------
-def get_current_lecturer(current=Depends(get_current_user)):
+async def get_current_lecturer(   # ✅ ASYNC
+    current=Depends(get_current_user)
+):
     if current["role"] != "lecturer":
         raise HTTPException(
             status_code=403,
@@ -117,7 +132,13 @@ def get_current_lecturer(current=Depends(get_current_user)):
         )
     return current["user"]
 
-def get_current_admin(current=Depends(get_current_user)):
+
+# ------------------------------------
+# Restrict to admins only
+# ------------------------------------
+async def get_current_admin(   # ✅ ASYNC
+    current=Depends(get_current_user)
+):
     if current["role"] != "admin":
         raise HTTPException(
             status_code=403,
