@@ -27,15 +27,6 @@ def get_password_hash(password: str) -> str:
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
-# ----------------------------
-# JWT helpers
-# ----------------------------
-def decode_access_token(token: str) -> Optional[Dict]:
-    try:
-        return jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-    except JWTError:
-        return None
-
 
 # ----------------------------
 # Lecturer CRUD
@@ -50,7 +41,7 @@ def change_lecturer_password(db: Session, lecturer, current_password: str, new_p
     return True
     
 
-def update_lecturer(db: Session, lecturer_id: int, school_id: int, updates: dict):
+def update_lecturer(db: Session, lecturer_id: uuid.UUID, school_id: uuid.UUID, updates: dict):
     lecturer = (
         db.query(models.Lecturer)
         .filter(models.Lecturer.id == lecturer_id).filter(models.Lecturer.school_id == school_id)
@@ -72,7 +63,7 @@ def update_lecturer(db: Session, lecturer_id: int, school_id: int, updates: dict
 
     return lecturer
 
-def get_lecturer_by_email(db: Session, email: str, school_id: int):
+def get_lecturer_by_email(db: Session, email: str, school_id: uuid.UUID):
     return (
         db.query(models.Lecturer)
         .filter(models.Lecturer.email == email).filter(models.Lecturer.school_id == school_id)
@@ -80,7 +71,7 @@ def get_lecturer_by_email(db: Session, email: str, school_id: int):
     )
 
 
-def lecturer_email_exists(db: Session, email: str, exclude_id: Optional[int] = None) -> bool:
+def lecturer_email_exists(db: Session, email: str, exclude_id: Optional[uuid.UUID] = None) -> bool:
     query = db.query(models.Lecturer).filter(models.Lecturer.email == email)
 
     if exclude_id:
@@ -88,7 +79,7 @@ def lecturer_email_exists(db: Session, email: str, exclude_id: Optional[int] = N
 
     return db.query(query.exists()).scalar()
 
-def get_lecturer(db: Session, lecturer_id: int, school_id:int):
+def get_lecturer(db: Session, lecturer_id: uuid.UUID, school_id:uuid.UUID):
     return db.query(models.Lecturer).filter(models.Lecturer.id == lecturer_id).first().filter(models.Lecturer.school_id == school_id)
 
 def create_lecturer(db: Session, lecturer_in: schemas.LecturerCreate):
@@ -115,7 +106,7 @@ def create_lecturer(db: Session, lecturer_in: schemas.LecturerCreate):
     return lecturer
 
 
-def authenticate_lecturer(db: Session, email: str, password: str, school_id:int):
+def authenticate_lecturer(db: Session, email: str, password: str, school_id:uuid.UUID):
     lecturer = get_lecturer_by_email(db, email, school_id)
     if not lecturer or not verify_password(password, lecturer.hashed_password):
         return False
@@ -136,7 +127,7 @@ def change_student_password(db: Session, student, current_password: str, new_pas
     return True
 
 
-def update_student(db: Session, student_id: int, school_id:int, updates: dict):
+def update_student(db: Session, student_id: uuid.UUID, school_id:uuid.UUID, updates: dict):
     student = (
         db.query(models.Student)
         .filter(models.Student.id == student_id).filter(models.Student.school_id == school_id)
@@ -146,7 +137,7 @@ def update_student(db: Session, student_id: int, school_id:int, updates: dict):
     if not student:
         return None
 
-    ALLOWED_FIELDS = {"full_name", "email", "department", "reg_no"}
+    ALLOWED_FIELDS = {"full_name", "email", "department", "registration_number"}
 
     for field, value in updates.items():
         if field in ALLOWED_FIELDS and value is not None:
@@ -158,7 +149,7 @@ def update_student(db: Session, student_id: int, school_id:int, updates: dict):
 
     return student
 
-def get_student_by_email(db: Session, email: str, school_id:int):
+def get_student_by_email(db: Session, email: str, school_id:uuid.UUID):
     return (
         db.query(models.Student)
         .filter(models.Student.email == email).filter(models.Student.school_id == school_id)
@@ -166,7 +157,7 @@ def get_student_by_email(db: Session, email: str, school_id:int):
     )
 
 
-def student_email_exists(db: Session, email: str, exclude_id: Optional[int] = None) -> bool:
+def student_email_exists(db: Session, email: str, exclude_id: Optional[uuid.UUID] = None) -> bool:
     query = db.query(models.Student).filter(models.Student.email == email)
 
     if exclude_id:
@@ -177,10 +168,10 @@ def student_email_exists(db: Session, email: str, exclude_id: Optional[int] = No
 def get_student_by_registration(db: Session, reg_no: str):
     return db.query(models.Student).filter(models.Student.registration_number == reg_no).first()
 
-def get_student(db: Session, student_id: int):
+def get_student(db: Session, student_id: uuid.UUID):
     return db.query(models.Student).filter(models.Student.id == student_id).first()
 
-def get_all_students(db: Session, school_id:int):
+def get_all_students(db: Session, school_id:uuid.UUID):
     return db.query(models.Student).filter(models.Student.school_id == school_id).all()
 
 def create_student(db: Session, student_in: schemas.StudentCreate):
@@ -209,7 +200,7 @@ def create_student(db: Session, student_in: schemas.StudentCreate):
     return student
 
 
-def authenticate_student(db: Session, email: str, password: str, school_id:int):
+def authenticate_student(db: Session, email: str, password: str, school_id:uuid.UUID):
     student = get_student_by_email(db, email, school_id)
     if not student or not verify_password(password, student.hashed_password):
         return False
@@ -221,7 +212,7 @@ def authenticate_student(db: Session, email: str, password: str, school_id:int):
 # ----------------------------
 # Attendance CRUD
 # ----------------------------
-def get_attendance_by_student_and_date(db: Session, school_id:int, student_id: int, date_value: date):
+def get_attendance_by_student_and_date(db: Session, school_id:uuid.UUID, student_id: uuid.UUID, date_value: date):
     return (
         db.query(models.Attendance)
         .filter(models.Attendance.student_id == student_id)
@@ -230,7 +221,7 @@ def get_attendance_by_student_and_date(db: Session, school_id:int, student_id: i
         .first()
     )
 
-def get_attendance_by_course_and_date(db: Session, school_id:int, course_code: str, date_value: date):
+def get_attendance_by_course_and_date(db: Session, school_id:uuid.UUID, course_code: str, date_value: date):
     return (
         db.query(models.Attendance)
         .filter(models.Attendance.course_code == course_code)
@@ -238,7 +229,7 @@ def get_attendance_by_course_and_date(db: Session, school_id:int, course_code: s
         .filter(models.Student.school_id == school_id)
         .first()
     )
-def get_attendance_by_student(db: Session, school_id:int, student_id: int):
+def get_attendance_by_student(db: Session, school_id:uuid.UUID, student_id: uuid.UUID):
     return (
         db.query(models.Attendance)
         .filter(models.Attendance.student_id == student_id)
@@ -249,15 +240,15 @@ def get_attendance_by_student(db: Session, school_id:int, student_id: int):
 
 def create_attendance(
     db: Session,
-    student_id: int,
+    student_id: uuid.UUID,
     student_name: str,
-    lecturer_id: int,
+    lecturer_id: uuid.UUID,
     lecturer_name: str,
     session_id: int,
     course_code: str,
     course_title: str,
     date:date,
-    school_id:int,
+    school_id:uuid.UUID,
     status: str = "present"
 ):
     attendance = models.Attendance(
@@ -283,7 +274,7 @@ def create_attendance(
 # ----------------------------
 # NEW: Attendance Session CRUD
 # ----------------------------
-def create_attendance_session(db: Session, session_in: schemas.AttendanceSessionCreate, lecturer_id:int, lecturer_name: str, school_id:int):
+def create_attendance_session(db: Session, session_in: schemas.AttendanceSessionCreate, lecturer_id:uuid.UUID, lecturer_name: str, school_id:uuid.UUID):
     """Create a new class attendance session with a unique session code."""
 
     unique_code = f"S-{uuid.uuid4().hex[:6].upper()}"
@@ -305,7 +296,7 @@ def create_attendance_session(db: Session, session_in: schemas.AttendanceSession
     return session
 
 
-def get_session_by_code(db: Session, session_code: str, school_id:int):
+def get_session_by_code(db: Session, session_code: str, school_id:uuid.UUID):
     """Retrieve attendance session by unique code."""
     return (
         db.query(models.AttendanceSession)
@@ -314,7 +305,7 @@ def get_session_by_code(db: Session, session_code: str, school_id:int):
         .first()
     )
 
-def get_attendance_by_student_and_session(db, student_id: int, session_id: int, school_id:int):
+def get_attendance_by_student_and_session(db, student_id: uuid.UUID, session_id: uuid.UUID, school_id:uuid.UUID):
     return (
         db.query(models.Attendance)
         .filter(
@@ -327,8 +318,8 @@ def get_attendance_by_student_and_session(db, student_id: int, session_id: int, 
 
 def get_attendance_for_lecturer(
     db: Session,
-    lecturer_id: int,
-    school_id:int,
+    lecturer_id: uuid.UUID,
+    school_id:uuid.UUID,
     date: Optional[date] = None,
     course_code: Optional[str] = None
 ):
@@ -345,18 +336,18 @@ def get_attendance_for_lecturer(
 
     return query.all()
 
-def get_attendance_by_id(db: Session, attendance_id: int, school_id:int):
+def get_attendance_by_id(db: Session, attendance_id: uuid.UUID, school_id:uuid.UUID):
     """Get a specific attendance record by ID"""
     return db.query(models.Attendance).filter(models.Attendance.id == attendance_id).filter(models.Student.school_id == school_id).first()
 
-def delete_attendance(db: Session, attendance_id: int):
+def delete_attendance(db: Session, attendance_id: uuid.UUID):
     """Delete a specific attendance record"""
     attendance = get_attendance_by_id(db, attendance_id)
     if attendance:
         db.delete(attendance)
         db.commit()
 
-def get_attendance_session_by_id(db, session_id: int, school_id:int):
+def get_attendance_session_by_id(db, session_id: uuid.UUID, school_id:uuid.UUID):
     return db.query(models.AttendanceSession).filter(
         models.AttendanceSession.id == session_id,
         models.Student.school_id == school_id
@@ -386,5 +377,5 @@ def authenticate_admin(db: Session, email: str, password: str):
 # ==========================
 # School crud
 # ==========================
-def get_school_by_id(db: Session, school_id: int):
+def get_school_by_id(db: Session, school_id: uuid.UUID):
     return db.query(models.School).filter(models.School.id == school_id).first()

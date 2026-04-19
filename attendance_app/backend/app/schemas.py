@@ -7,6 +7,7 @@ Used for request validation and response serialization.
 from pydantic import BaseModel, EmailStr, Field
 from typing import Optional, List
 from datetime import date, datetime
+import uuid
 
 # Admin schemas
 class AdminCreate(BaseModel):
@@ -39,9 +40,9 @@ class LecturerCreate(LecturerBase):
 
 
 class LecturerOut(LecturerBase):
-    id: int
+    id: uuid.UUID
     profile_image: Optional[str] = None
-    school_id: int
+    school_id: uuid.UUID
 
     model_config = {"from_attributes": True}
 
@@ -52,7 +53,7 @@ class LecturerLogin(BaseModel):
 
 
 class LecturerLog(LecturerLogin):
-    id: int
+    id: uuid.UUID
 
     model_config = {"from_attributes": True}
 
@@ -73,9 +74,9 @@ class StudentCreate(StudentBase):
 
 
 class StudentOut(StudentBase):
-    id: int
+    id: uuid.UUID
     profile_image: Optional[str] = None
-    school_id: int
+    school_id: uuid.UUID
 
     model_config = {"from_attributes": True}
 
@@ -86,12 +87,12 @@ class StudentLogin(BaseModel):
 
 
 class StudentLog(StudentLogin):
-    id: int
+    id: uuid.UUID
 
     model_config = {"from_attributes": True}
 
 class MyAttendanceOut(BaseModel):
-    id: int
+    id: uuid.UUID
     date: date
     status: str
     course_title: str
@@ -108,9 +109,9 @@ class AttendanceBase(BaseModel):
 
 
 class AttendanceCreate(AttendanceBase):
-    student_id: int
-    lecturer_id: int
-    course_id: int
+    student_id: uuid.UUID
+    lecturer_id: uuid.UUID
+    course_id: uuid.UUID
 
 
 
@@ -120,9 +121,9 @@ class AttendanceCreate(AttendanceBase):
 class Token(BaseModel):
     access_token: str
     token_type: str
-    user_id: int
+    user_id: uuid.UUID
     role: str 
-    school_id: int
+    school_id: uuid.UUID
 
 
 class TokenData(BaseModel):
@@ -147,11 +148,11 @@ class AttendanceSessionCreate(BaseModel):
 
 
 class AttendanceMarkCreate(BaseModel):
-    session_id: int
+    session_id: uuid.UUID
 
 class AttendanceSessionOut(BaseModel):
-    id: int
-    lecturer_id: int
+    id: uuid.UUID
+    lecturer_id: uuid.UUID
     lecturer_name: str
     course_code: str
     course_title: str
@@ -162,12 +163,12 @@ class AttendanceSessionOut(BaseModel):
     model_config = {"from_attributes": True}
 
 class AttendanceOut(BaseModel):
-    id: int
-    student_id: int
+    id: uuid.UUID
+    student_id: uuid.UUID
     student_name: str
-    lecturer_id: int
+    lecturer_id: uuid.UUID
     lecturer_name: str
-    session_id: int
+    session_id: uuid.UUID
     course_code: str
     course_title: str
     date: date
@@ -179,7 +180,7 @@ class SchoolCreate(BaseModel):
     name: str
 
 class SchoolOut(BaseModel):
-    id: int
+    id: uuid.UUID
     name: str
     created_at: datetime
 

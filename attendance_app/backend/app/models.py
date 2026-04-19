@@ -8,8 +8,8 @@ from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Date, Bool
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from app.database import Base
-import datetime
 import uuid
+from sqlalchemy.dialects.postgresql import UUID
 
 #---------------------------
 # Admin Model
@@ -17,7 +17,7 @@ import uuid
 class Admin(Base):
     __tablename__ = "admins"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
     full_name = Column(String, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
@@ -30,16 +30,16 @@ class Admin(Base):
 class School(Base):
     __tablename__ = "schools"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
     name = Column(String(225), unique=True, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # Relationships
-    students = relationship("Student", back_populates="school", cascade="all, delete")
-    lecturers = relationship("Lecturer", back_populates="school", cascade="all, delete")
-    courses = relationship("Course", back_populates="school", cascade="all, delete")
-    attendance_records = relationship("Attendance", back_populates="school", cascade="all, delete")
-    attendance_sessions = relationship("AttendanceSession", back_populates="school", cascade="all, delete")
+    students = relationship("Student", back_populates="school", cascade="all, delete-orphan")
+    lecturers = relationship("Lecturer", back_populates="school", cascade="all, delete-orphan")
+    courses = relationship("Course", back_populates="school", cascade="all, delete-orphan")
+    attendance_records = relationship("Attendance", back_populates="school", cascade="all, delete-orphan")
+    attendance_sessions = relationship("AttendanceSession", back_populates="school", cascade="all, delete-orphan")
 
 # ----------------------------
 # Lecturer Model
@@ -47,14 +47,14 @@ class School(Base):
 class Lecturer(Base):
     __tablename__ = "lecturers"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
     full_name = Column(String(225), nullable=False)
     email = Column(String(225), unique=True, nullable=False)
     hashed_password = Column(String(225), nullable=False)
     course = Column(String(225))
     profile_image = Column(String(225), nullable=True)
     is_active = Column(Boolean, default=True)
-    school_id = Column(Integer, ForeignKey("schools.id"), nullable=False)
+    school_id = Column(UUID(as_uuid=True), ForeignKey("schools.id", ondelete="CASCADE"), nullable=False, index=True)
 
 
     # Relationships
@@ -71,7 +71,7 @@ class Lecturer(Base):
 class Student(Base):
     __tablename__ = "students"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
     full_name = Column(String(225), nullable=False)
     email = Column(String(225), unique=True, nullable=False)
     hashed_password = Column(String(225), nullable=False)
@@ -79,10 +79,10 @@ class Student(Base):
     department = Column(String(225))
     profile_image = Column(String(225), nullable=True)
     is_active = Column(Boolean, default=True)
-    school_id = Column(Integer, ForeignKey("schools.id"), nullable=False)
+    school_id = Column(UUID(as_uuid=True), ForeignKey("schools.id", ondelete="CASCADE"), nullable=False, index=True)
 
 
-    lecturer_id = Column(Integer, ForeignKey("lecturers.id"))
+    lecturer_id = Column(UUID(as_uuid=True), ForeignKey("lecturers.id", ondelete="CASCADE"), index=True)
     lecturer = relationship("Lecturer", back_populates="students")
     school = relationship("School", back_populates="students")
     attendance_records = relationship("Attendance", back_populates="student")
@@ -94,17 +94,17 @@ class Student(Base):
 class Attendance(Base):
     __tablename__ = "attendance"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
 
-    student_id = Column(Integer, ForeignKey("students.id"), nullable=False)
+    student_id = Column(UUID(as_uuid=True), ForeignKey("students.id", ondelete="CASCADE"), nullable=False, index=True)
     student_name = Column(String(225), nullable=False)
-    lecturer_id = Column(Integer, ForeignKey("lecturers.id"), nullable=False)
+    lecturer_id = Column(UUID(as_uuid=True), ForeignKey("lecturers.id", ondelete="CASCADE"), nullable=False, index=True)
     lecturer_name = Column(String(225), nullable=False)
 
     # NEW: session link
     session_id = Column(
-        Integer,
-        ForeignKey("attendance_sessions.id"),
+        UUID(as_uuid=True),
+        ForeignKey("attendance_sessions.id", ondelete="CASCADE"),
         nullable=True,
         index=True
     )
@@ -116,7 +116,7 @@ class Attendance(Base):
     date = Column(Date, nullable=False, index=True)
     status = Column(String(225), nullable=False, default="present")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    school_id = Column(Integer, ForeignKey("schools.id"), nullable=False)
+    school_id = Column(UUID(as_uuid=True), ForeignKey("schools.id", ondelete="CASCADE"), nullable=False, index=True)
 
     # Relationships
     student = relationship("Student", back_populates="attendance_records")
@@ -131,12 +131,12 @@ class Attendance(Base):
 class Course(Base):
     __tablename__ = "courses"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
     title = Column(String(225), nullable=False)
     code = Column(String(225), unique=True, nullable=False)
 
-    lecturer_id = Column(Integer, ForeignKey("lecturers.id"), nullable=False)
-    school_id = Column(Integer, ForeignKey("schools.id"), nullable=False)
+    lecturer_id = Column(UUID(as_uuid=True), ForeignKey("lecturers.id", ondelete="CASCADE"), nullable=False, index=True)
+    school_id = Column(UUID(as_uuid=True), ForeignKey("schools.id", ondelete="CASCADE"), nullable=False, index=True)
 
     lecturer = relationship("Lecturer", back_populates="courses")
     school = relationship("School", back_populates="courses")
@@ -148,8 +148,8 @@ class Course(Base):
 class AttendanceSession(Base):
     __tablename__ = "attendance_sessions"
 
-    id = Column(Integer, primary_key=True, index=True)
-    lecturer_id = Column(Integer, ForeignKey("lecturers.id"), nullable=False)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
+    lecturer_id = Column(UUID(as_uuid=True), ForeignKey("lecturers.id", ondelete="CASCADE"), nullable=False, index=True)
     lecturer_name = Column(String(225), nullable=False)
 
     course_code = Column(String(225), nullable=False)
@@ -160,7 +160,7 @@ class AttendanceSession(Base):
     session_code = Column(String(225), unique=True, nullable=False)
     is_active = Column(Boolean, default=True)
     closed_at = Column(DateTime, nullable=True)
-    school_id = Column(Integer, ForeignKey("schools.id"), nullable=False)
+    school_id = Column(UUID(as_uuid=True), ForeignKey("schools.id", ondelete="CASCADE"), nullable=False, index=True)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 

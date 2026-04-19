@@ -22,6 +22,7 @@ from app.models import Base
 from app import models
 from sqlalchemy.orm import Session
 from app.database import get_db, engine
+from app.core.logging_config import setup_logging
 import os
 
 
@@ -33,6 +34,7 @@ app = FastAPI(
     version="1.0.0"
 )
 
+setup_logging()
 
 # CORS
 app.add_middleware(
@@ -43,6 +45,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 app.include_router(auth.router)
 app.include_router(students.router)
 app.include_router(lecturers.router)
@@ -51,7 +54,20 @@ app.include_router(test_attendance.router)
 app.include_router(admin_auth.router)
 app.include_router(admin.router)
 app.include_router(schools.router)
+app.include_router(admin_create.router)
 
+# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# PROJECT_ROOT = os.path.dirname(BASE_DIR)
+
+
+
+# FRONTEND_DIR = os.path.join(PROJECT_ROOT, "frontend")
+
+# app.mount(
+#     "/",
+#     StaticFiles(directory=FRONTEND_DIR, html=True),
+#     name="frontend"
+# )
 @app.get("/health", tags=["health"])
 def health_check():
     return {"status": "ok", "timestamp": datetime.datetime.utcnow()}
@@ -93,7 +109,6 @@ def custom_openapi():
 
     app.openapi_schema = openapi_schema
     return app.openapi_schema
-
 
 
 app.openapi = custom_openapi  # <-- ACTIVATE CUSTOM SWAGGER
