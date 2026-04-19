@@ -4,8 +4,9 @@ from datetime import datetime
 from app import schemas, models
 from app.database import get_db
 from app.utils import security
+import logging
 
-
+logger = logging.getLogger(__name__)
 
 router = APIRouter(
     prefix="/schools",
@@ -30,6 +31,7 @@ def create_school(
 
     new_school = models.School(name=school.name)
 
+    logger.info(f"Admin {current_admin.full_name} created school: {new_school.name}")
     db.add(new_school)
     db.commit()
     db.refresh(new_school)

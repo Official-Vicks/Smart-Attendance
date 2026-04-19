@@ -14,6 +14,9 @@ from app.database import get_db
 from app.utils import security
 from fastapi import UploadFile, File
 from app.utils.storage import upload_profile_image
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(
     prefix="/students",
@@ -43,6 +46,8 @@ def update_student_profile(
     updated = crud.update_student(db, current_student.id, current_student.school_id, updates.model_dump())
     if not updated:
         raise HTTPException(status_code=404, detail="Student not found")
+    
+    logger.info(f"Student: {current_student.full_name} updated profile")
     return updated
 
 # change password
@@ -61,6 +66,8 @@ def change_student_password(
 
     if not success:
         raise HTTPException(status_code=400, detail="Current password is incorrect")
+    
+    logger.info(f"Student: {current_student.full_name} changed password")
 
     return {"message": "Password updated successfully"}
 
@@ -69,14 +76,16 @@ def change_student_password(
 def upload_profile_image_student(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
-    current_user=Depends(security.get_current_student)
+    current_student=Depends(security.get_current_student)
 ):
     if file.content_type not in ["image/jpeg", "image/png"]:
         raise HTTPException(status_code=400, detail="Invalid image type")
 
-    image_url = upload_profile_image(file, current_user.id)
+    image_url = upload_profile_image(file, current_student.id)
 
-    current_user.profile_image = image_url
+    current_student.profile_image = image_url
+
+    logger.info(f"Student: {current_student.full_name} uploaded profile image {image_url}")
     db.commit()
 
     return {
@@ -90,6 +99,7 @@ def deactivate_student(
     current_student=Depends(security.get_current_student)
 ):
     current_student.is_active = False
+    logger.info(f"Student: {current_student.full_name} account deactivated")
     db.commit()
     return {"detail": "Account deactivated successfully"}
 
@@ -116,7 +126,7 @@ def get_my_attendance_records(
 
 
 # -------------------------------------------------------
-# NEW (PHASE 2): Verify attendance session code
+# Verify attendance session code
 # -------------------------------------------------------
 @router.post("/verify_session_code", response_model=schemas.AttendanceSessionOut)
 def verify_session_code(

@@ -3,6 +3,10 @@ from sqlalchemy.orm import Session
 from app import models
 from app.database import get_db
 from app.utils.security import get_current_admin
+import uuid
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(
     prefix="/admin",
@@ -60,14 +64,14 @@ from fastapi import HTTPException
 @router.patch("/deactivate/{role}/{user_id}")
 def admin_deactivate_account(
     role: str,
-    user_id: int,
+    user_id: str,
     db: Session = Depends(get_db),
     current_admin=Depends(get_current_admin)
 ):
     if role == "student":
-        user = db.query(models.Student).filter(models.Student.id == user_id).first()
+        user = db.query(models.Student).filter(models.Student.id == uuid.UUID(user_id)).first()
     elif role == "lecturer":
-        user = db.query(models.Lecturer).filter(models.Lecturer.id == user_id).first()
+        user = db.query(models.Lecturer).filter(models.Lecturer.id == uuid.UUID(user_id)).first()
     else:
         raise HTTPException(status_code=400, detail="Invalid role")
 
@@ -75,6 +79,7 @@ def admin_deactivate_account(
         raise HTTPException(status_code=404, detail="User not found")
 
     user.is_active = False
+    logger.info(f"Admin deactivated {role.capitalize()}: {user.id}")
     db.commit()
 
     return {"message": f"{role.capitalize()} account deactivated"}
@@ -82,14 +87,14 @@ def admin_deactivate_account(
 @router.patch("/reactivate/{role}/{user_id}")
 def admin_reactivate_account(
     role: str,
-    user_id: int,
+    user_id: str,
     db: Session = Depends(get_db),
     current_admin=Depends(get_current_admin)
 ):
     if role == "student":
-        user = db.query(models.Student).filter(models.Student.id == user_id).first()
+        user = db.query(models.Student).filter(models.Student.id == uuid.UUID(user_id)).first()
     elif role == "lecturer":
-        user = db.query(models.Lecturer).filter(models.Lecturer.id == user_id).first()
+        user = db.query(models.Lecturer).filter(models.Lecturer.id == uuid.UUID(user_id)).first()
     else:
         raise HTTPException(status_code=400, detail="Invalid role")
 
@@ -97,6 +102,7 @@ def admin_reactivate_account(
         raise HTTPException(status_code=404, detail="User not found")
 
     user.is_active = True
+    logger.info(f"Admin reactivated {role.capitalize()}: {user.id}")
     db.commit()
 
     return {"message": f"{role.capitalize()} account reactivated"}

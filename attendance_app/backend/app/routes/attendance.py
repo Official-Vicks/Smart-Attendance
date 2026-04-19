@@ -11,6 +11,10 @@ from app.database import get_db
 from app import crud, schemas, models
 from app.utils import security
 from typing import Optional
+import uuid
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/attendance", tags=["Attendance"])
 
@@ -79,6 +83,7 @@ def mark_attendance(
         status="present"
     )
 
+    logger.info(f"Student {current_user.full_name} marked attendance. Course: {session.course_title}, Lecturer: {session.lecturer_name}")
     return new_attendance
 
 
@@ -109,7 +114,7 @@ def view_attendance_records(
 # ======================================================
 @router.delete("/{attendance_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_attendance_record(
-    attendance_id: int,
+    attendance_id: str,
     db: Session = Depends(get_db),
     current_user: models.Lecturer = Depends(security.get_current_lecturer)
 ):
@@ -118,7 +123,7 @@ def delete_attendance_record(
     Only deletes if the record belongs to the logged-in lecturer.
     """
 
-    attendance = crud.get_attendance_by_id(db, attendance_id, current_user.school_id)
+    attendance = crud.get_attendance_by_id(db, uuid.UUID(attendance_id), current_user.school_id)
 
     if not attendance:
         raise HTTPException(status_code=404, detail="Attendance not found")
@@ -128,7 +133,7 @@ def delete_attendance_record(
 
     crud.delete_attendance(db, attendance_id)
 
-    # FIX: indentation — MUST align with function body, not outside it
+    logger.info(f"Lecturer {attendance.lecturer_name} deleted attendance record: {attendance_id} of student {current_user.full_name}")
     return {"message": "Deleted successfully"}
 
 @router.get("/session/{session_id}/status")

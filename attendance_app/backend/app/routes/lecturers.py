@@ -14,6 +14,10 @@ from app.database import get_db
 from app.utils import security
 from fastapi import UploadFile, File
 from app.utils.storage import upload_profile_image
+import uuid
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(
     prefix="/lecturers",
@@ -41,6 +45,9 @@ def update_lecturer_profile(
             raise HTTPException(status_code=400, detail="Email already in use")
 
     updated = crud.update_lecturer(db, current_lecturer.id, current_lecturer.school_id, updates.model_dump())
+
+    logger.info(f"Lecturer {current_lecturer.full_name} updated profile")
+
     if not updated:
         raise HTTPException(status_code=404, detail="Lecturer not found")
     return updated
@@ -61,6 +68,8 @@ def change_lecturer_password(
 
     if not success:
         raise HTTPException(status_code=400, detail="Current password is incorrect")
+    
+    logger.info(f"Lecturer {current_lecturer.full_name} updated password")
 
     return {"message": "Password updated successfully"}
 
@@ -70,14 +79,15 @@ def change_lecturer_password(
 def upload_profile_image_lecturer(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
-    current_user=Depends(security.get_current_lecturer)
+    current_lecturer=Depends(security.get_current_lecturer)
 ):
     if file.content_type not in ["image/jpeg", "image/png"]:
         raise HTTPException(status_code=400, detail="Invalid image type")
 
-    image_url = upload_profile_image(file, current_user.id)
+    image_url = upload_profile_image(file, current_lecturer.id)
 
-    current_user.profile_image = image_url
+    current_lecturer.profile_image = image_url
+    logger.info(f"Lecturer {current_lecturer.full_name} uploaded profile image {image_url}")
     db.commit()
 
     return {
@@ -91,6 +101,8 @@ def deactivate_lecturer(
     current_lecturer=Depends(security.get_current_lecturer)
 ):
     current_lecturer.is_active = False
+
+    logger.info(f'Lecturer {current_lecturer.full_name} account deactivated')
     db.commit()
     return {"detail": "Account deactivated successfully"}
 
@@ -130,6 +142,8 @@ def create_attendance_session(
     """Lecturer creates a new attendance session with unique session code"""
 
     session = crud.create_attendance_session(db, session_in, lecturer_id=current_lecturer.id, lecturer_name=current_lecturer.full_name, school_id=current_lecturer.school_id)
+
+    logger.info(f"Lecturer {current_lecturer.full_name} created attendance session")
     return session
 
 @router.get("/me/sessions")
@@ -147,7 +161,7 @@ def get_my_sessions(
 # Close session
 @router.post("/sessions/{session_id}/close")
 def close_session(
-    session_id: int,
+    session_id: uuid.UUID,
     db: Session = Depends(get_db),
     current_lecturer: models.Lecturer = Depends(security.get_current_lecturer),
 ):
@@ -161,6 +175,7 @@ def close_session(
 
     session.is_active = False
     session.closed_at = datetime.utcnow()
+    logger.info(f"Lecturer {current_lecturer.full_name} closed attendance session: {session_id}")
 
     db.commit()
     return {"message": "Session closed successfully"}
