@@ -66,7 +66,7 @@ def login_lecturer(payload: schemas.LecturerLogin, db: Session = Depends(get_db)
         #create JWT token
         access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = security.create_access_token(
-            data={"email": user.email, "role": "lecturer", "user_id": user.id, "school_id": user.school_id},
+            data={"email": user.email, "role": "lecturer", "user_id": str(user.id), "school_id": str(user.school_id)},
             expires_delta=access_token_expires
         )
     except AttributeError:
@@ -103,7 +103,7 @@ def login_student(payload: schemas.StudentLogin, db: Session = Depends(get_db)):
         #create JWT token
         access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = security.create_access_token(
-            data={"email": user.email, "role": "student", "user_id": user.id, "school_id": user.school_id},
+            data={"email": user.email, "role": "student", "user_id": str(user.id), "school_id": str(user.school_id)},
             expires_delta=access_token_expires
         )
     except AttributeError:
