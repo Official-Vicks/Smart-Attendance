@@ -13,3 +13,4 @@ python-dotenv
 pydantic[email]
 python-multipart
 supabase==2.*
+python-json-logger
