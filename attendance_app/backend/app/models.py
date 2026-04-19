@@ -5,7 +5,7 @@ Uses SQLAlchemy ORM with proper relationships.
 """
 
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Date, Boolean
-from sqlalchemy.sql import func
+from sqlalchemy.sql import func, text
 from sqlalchemy.orm import relationship
 from app.database import Base
 import uuid
@@ -17,7 +17,7 @@ from sqlalchemy.dialects.postgresql import UUID
 class Admin(Base):
     __tablename__ = "admins"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"), index=True)
     full_name = Column(String, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
@@ -30,7 +30,7 @@ class Admin(Base):
 class School(Base):
     __tablename__ = "schools"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"), index=True)
     name = Column(String(225), unique=True, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
@@ -47,7 +47,7 @@ class School(Base):
 class Lecturer(Base):
     __tablename__ = "lecturers"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"), index=True)
     full_name = Column(String(225), nullable=False)
     email = Column(String(225), unique=True, nullable=False)
     hashed_password = Column(String(225), nullable=False)
@@ -71,7 +71,7 @@ class Lecturer(Base):
 class Student(Base):
     __tablename__ = "students"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"), index=True)
     full_name = Column(String(225), nullable=False)
     email = Column(String(225), unique=True, nullable=False)
     hashed_password = Column(String(225), nullable=False)
@@ -94,7 +94,7 @@ class Student(Base):
 class Attendance(Base):
     __tablename__ = "attendance"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"), index=True)
 
     student_id = Column(UUID(as_uuid=True), ForeignKey("students.id", ondelete="CASCADE"), nullable=False, index=True)
     student_name = Column(String(225), nullable=False)
@@ -131,7 +131,7 @@ class Attendance(Base):
 class Course(Base):
     __tablename__ = "courses"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"), index=True)
     title = Column(String(225), nullable=False)
     code = Column(String(225), unique=True, nullable=False)
 
@@ -148,7 +148,7 @@ class Course(Base):
 class AttendanceSession(Base):
     __tablename__ = "attendance_sessions"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"), index=True)
     lecturer_id = Column(UUID(as_uuid=True), ForeignKey("lecturers.id", ondelete="CASCADE"), nullable=False, index=True)
     lecturer_name = Column(String(225), nullable=False)
 
