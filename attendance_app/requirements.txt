@@ -1,0 +1,16 @@
+fastapi
+uvicorn
+sqlalchemy
+pydantic
+pydantic-settings
+python-jose
+passlib==1.7.4
+bcrypt==3.2.2
+jinja2
+requests
+psycopg2-binary==2.9.9 #feel free to change depending on your windows(or any operating system) version
+python-dotenv
+pydantic[email]
+python-multipart
+supabase==2.*
+python-json-logger
