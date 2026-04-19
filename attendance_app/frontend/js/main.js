@@ -85,9 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function getSchools() {
     try {
-      const response = await fetch(
-        "https://smart-attendance-api-q5ul.onrender.com/schools/allSchools"
-      );
+      const response = await fetch(`${BASE_URL}/schools/allSchools`);
 
       const schools = await response.json();
 
