@@ -52,22 +52,26 @@ def login_lecturer(payload: schemas.LecturerLogin, db: Session = Depends(get_db)
     Lecturer login endpoint.
     Accepts JSON: { email, password }
     """
-    lecturer = db.query(models.Lecturer).filter(
-        models.Lecturer.email == payload.email
+    try:
+        lecturer = db.query(models.Lecturer).filter(
+            models.Lecturer.email == payload.email
+            ).first()
+        school = db.query(models.School).filter(
+            models.School.id == lecturer.school_id
         ).first()
-    school = db.query(models.School).filter(
-        models.School.id == lecturer.school_id
-    ).first()
-    user = crud.authenticate_lecturer(db, payload.email, payload.password, school.id)
-    if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email, password, or non-existing account")
+        user = crud.authenticate_lecturer(db, payload.email, payload.password, school.id)
+        if not user:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email, password, or non-existing account")
 
-    #create JWT token
-    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = security.create_access_token(
-        data={"email": user.email, "role": "lecturer", "user_id": user.id, "school_id": user.school_id},
-        expires_delta=access_token_expires
-    )
+        #create JWT token
+        access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token = security.create_access_token(
+            data={"email": user.email, "role": "lecturer", "user_id": user.id, "school_id": user.school_id},
+            expires_delta=access_token_expires
+        )
+    except AttributeError:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found")
+
     return {
     "access_token": access_token,
     "token_type": "bearer",
@@ -85,22 +89,26 @@ def login_student(payload: schemas.StudentLogin, db: Session = Depends(get_db)):
     Student login endpoint.
     Accepts JSON: { email, password }
     """
-    student = db.query(models.Student).filter(
-        models.Student.email == payload.email
+    try:
+        student = db.query(models.Student).filter(
+            models.Student.email == payload.email
+            ).first()
+        school = db.query(models.School).filter(
+            models.School.id == student.school_id
         ).first()
-    school = db.query(models.School).filter(
-        models.School.id == student.school_id
-    ).first()
-    user = crud.authenticate_student(db, payload.email, payload.password, school.id)
-    if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email, password or non-existing account")
+        user = crud.authenticate_student(db, payload.email, payload.password, school.id)
+        if not user:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email, password or non-existing account")
 
-    #create JWT token
-    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = security.create_access_token(
-        data={"email": user.email, "role": "student", "user_id": user.id, "school_id": user.school_id},
-        expires_delta=access_token_expires
-    )
+        #create JWT token
+        access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token = security.create_access_token(
+            data={"email": user.email, "role": "student", "user_id": user.id, "school_id": user.school_id},
+            expires_delta=access_token_expires
+        )
+    except AttributeError:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found")
+
     return {
     "access_token": access_token,
     "token_type": "bearer",
