@@ -214,7 +214,7 @@ def authenticate_student(db: Session, email: str, password: str, school_id:uuid.
 # ----------------------------
 def get_attendance_by_student_and_date(db: Session, school_id:uuid.UUID, student_id: uuid.UUID, date_value: date):
     return (
-        db.query(models.Attendance)
+        db.query(models.Attendance).join(models.Student)
         .filter(models.Attendance.student_id == student_id)
         .filter(models.Attendance.date == date_value)
         .filter(models.Student.school_id == school_id)
@@ -223,7 +223,7 @@ def get_attendance_by_student_and_date(db: Session, school_id:uuid.UUID, student
 
 def get_attendance_by_course_and_date(db: Session, school_id:uuid.UUID, course_code: str, date_value: date):
     return (
-        db.query(models.Attendance)
+        db.query(models.Attendance).join(models.Student)
         .filter(models.Attendance.course_code == course_code)
         .filter(models.Attendance.date == date_value)
         .filter(models.Student.school_id == school_id)
@@ -231,7 +231,7 @@ def get_attendance_by_course_and_date(db: Session, school_id:uuid.UUID, course_c
     )
 def get_attendance_by_student(db: Session, school_id:uuid.UUID, student_id: uuid.UUID):
     return (
-        db.query(models.Attendance)
+        db.query(models.Attendance).join(models.Student)
         .filter(models.Attendance.student_id == student_id)
         .filter(models.Student.school_id == school_id)
         .order_by(models.Attendance.created_at.desc())
@@ -299,15 +299,15 @@ def create_attendance_session(db: Session, session_in: schemas.AttendanceSession
 def get_session_by_code(db: Session, session_code: str, school_id:uuid.UUID):
     """Retrieve attendance session by unique code."""
     return (
-        db.query(models.AttendanceSession)
+        db.query(models.AttendanceSession).join(models.Student)
         .filter(models.AttendanceSession.session_code == session_code)
         .filter(models.Student.school_id == school_id)
         .first()
     )
 
-def get_attendance_by_student_and_session(db, student_id: uuid.UUID, session_id: uuid.UUID, school_id:uuid.UUID):
+def get_attendance_by_student_and_session(db: Session, student_id: uuid.UUID, session_id: uuid.UUID, school_id:uuid.UUID):
     return (
-        db.query(models.Attendance)
+        db.query(models.Attendance).join(models.Student)
         .filter(
             models.Attendance.student_id == student_id,
             models.Attendance.session_id == session_id,
@@ -338,17 +338,17 @@ def get_attendance_for_lecturer(
 
 def get_attendance_by_id(db: Session, attendance_id: uuid.UUID, school_id:uuid.UUID):
     """Get a specific attendance record by ID"""
-    return db.query(models.Attendance).filter(models.Attendance.id == attendance_id).filter(models.Student.school_id == school_id).first()
+    return db.query(models.Attendance).join(models.Lecturer).filter(models.Attendance.id == attendance_id).filter(models.Lecturer.school_id == school_id).first()
 
-def delete_attendance(db: Session, attendance_id: uuid.UUID):
+def delete_attendance(db: Session, attendance_id: uuid.UUID, school_id: uuid.UUID):
     """Delete a specific attendance record"""
-    attendance = get_attendance_by_id(db, attendance_id)
+    attendance = get_attendance_by_id(db, attendance_id, school_id)
     if attendance:
         db.delete(attendance)
         db.commit()
 
-def get_attendance_session_by_id(db, session_id: uuid.UUID, school_id:uuid.UUID):
-    return db.query(models.AttendanceSession).filter(
+def get_attendance_session_by_id(db: Session, session_id: uuid.UUID, school_id:uuid.UUID):
+    return db.query(models.AttendanceSession).join(models.Student).filter(
         models.AttendanceSession.id == session_id,
         models.Student.school_id == school_id
     ).first()
