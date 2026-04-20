@@ -256,7 +256,6 @@ function loadStudentAttendance() {
         tbody.innerHTML += `
           <tr>
             <td>${idx + 1}</td>
-            <td>${rec.student_id}</td>
             <td>${rec.course_code || "N/A"}</td>
             <td>${rec.lecturer_name}</td>
             <td>${rec.date}</td>
