@@ -131,7 +131,7 @@ def delete_attendance_record(
     if attendance.lecturer_id != current_user.id:
         raise HTTPException(status_code=403, detail="Unauthorized")
 
-    crud.delete_attendance(db, attendance_id)
+    crud.delete_attendance(db, attendance_id, current_user.school_id)
 
     logger.info(f"Lecturer {attendance.lecturer_name} deleted attendance record: {attendance_id} of student {current_user.full_name}")
     return {"message": "Deleted successfully"}
