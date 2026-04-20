@@ -43,6 +43,7 @@ class LecturerOut(LecturerBase):
     id: uuid.UUID
     profile_image: Optional[str] = None
     school_id: uuid.UUID
+    school_name: str
 
     model_config = {"from_attributes": True}
 
@@ -77,6 +78,7 @@ class StudentOut(StudentBase):
     id: uuid.UUID
     profile_image: Optional[str] = None
     school_id: uuid.UUID
+    school_name: str
 
     model_config = {"from_attributes": True}
 
