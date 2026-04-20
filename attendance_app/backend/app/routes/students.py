@@ -34,7 +34,7 @@ def get_my_profile(db: Session = Depends(get_db), current_student: models.Studen
         "id": current_student.id,
         "profile_image": current_student.profile_image,
         "school_id": current_student.school_id,
-        "school_name": school
+        "school_name": school.name
     }
 
 # -------------------------
