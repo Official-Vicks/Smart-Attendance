@@ -229,11 +229,11 @@ def get_attendance_by_course_and_date(db: Session, school_id:uuid.UUID, course_c
         .filter(models.Student.school_id == school_id)
         .first()
     )
-def get_attendance_by_student(db: Session, school_id:uuid.UUID, student_id: uuid.UUID):
+def get_attendance_by_student(db: Session, student_id: uuid.UUID, school_id:uuid.UUID):
     return (
-        db.query(models.Attendance).join(models.Student)
+        db.query(models.Attendance)
         .filter(models.Attendance.student_id == student_id)
-        .filter(models.Student.school_id == school_id)
+        .filter(models.Attendance.school_id == school_id)
         .order_by(models.Attendance.created_at.desc())
         .all()
     )
