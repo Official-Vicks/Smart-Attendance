@@ -27,8 +27,15 @@ router = APIRouter(
 # Get logged-in student profile
 # -------------------------
 @router.get("/me", response_model=schemas.StudentOut)
-def get_my_profile(current_student=Depends(security.get_current_student)):
-    return current_student
+def get_my_profile(db: Session = Depends(get_db), current_student: models.Student = Depends(security.get_current_student)):
+    school = crud.get_school_by_id(db, current_student.school_id)
+    
+    return {
+        "id": current_student.id,
+        "profile_image": current_student.profile_image,
+        "school_id": current_student.school_id,
+        "school_name": school
+    }
 
 # -------------------------
 # Update profile
