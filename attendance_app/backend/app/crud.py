@@ -244,7 +244,7 @@ def create_attendance(
     student_name: str,
     lecturer_id: uuid.UUID,
     lecturer_name: str,
-    session_id: int,
+    session_id: uuid.UUID,
     course_code: str,
     course_title: str,
     date:date,
@@ -299,9 +299,9 @@ def create_attendance_session(db: Session, session_in: schemas.AttendanceSession
 def get_session_by_code(db: Session, session_code: str, school_id:uuid.UUID):
     """Retrieve attendance session by unique code."""
     return (
-        db.query(models.AttendanceSession).join(models.Student)
+        db.query(models.AttendanceSession)
         .filter(models.AttendanceSession.session_code == session_code)
-        .filter(models.Student.school_id == school_id)
+        .filter(models.AttendanceSession.school_id == school_id)
         .first()
     )
 
@@ -325,7 +325,7 @@ def get_attendance_for_lecturer(
 ):
     query = db.query(models.Attendance).filter(
         models.Attendance.lecturer_id == lecturer_id,
-        models.Lecturer.school_id == school_id
+        models.Attendance.school_id == school_id
     )
 
     if date:
