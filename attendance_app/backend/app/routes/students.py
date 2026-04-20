@@ -112,17 +112,17 @@ def get_my_attendance_records(
     current_user: models.Student = Depends(security.get_current_student)
 ):
     records = crud.get_attendance_by_student(db, current_user.id, current_user.school_id)
-    # output = []
-    # for rec in records:
-    #     output.append({
-    #         "id": rec.id,
-    #         "date": rec.date,
-    #         "status": rec.status,
-    #         "course_title": rec.course_title,
-    #         "course_code": rec.course_code,
-    #         "lecturer_name": rec.lecturer_name
-    #     })
-    return records
+    output = []
+    for rec in records:
+        output.append({
+            "id": rec.id,
+            "date": rec.date,
+            "status": rec.status,
+            "course_title": rec.course_title,
+            "course_code": rec.course_code,
+            "lecturer_name": rec.lecturer_name
+        })
+    return output
 
 
 # -------------------------------------------------------
