@@ -189,39 +189,6 @@ function createSession() {
     });
 }
 
-function closeSession(sessionId) {
-  if (
-    !confirm(
-      "Closing this session will stop students from marking attendance. Continue?"
-    )
-  ) {
-    return;
-  }
-
-  fetch(`${API_BASE}/lecturers/sessions/${sessionId}/close`, {
-    method: "POST",
-    headers: getHeaders(),
-  })
-    .then(async (res) => {
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text || "Failed to close session");
-      }
-
-      const contentType = res.headers.get("content-type");
-      if (contentType && contentType.includes("application/json")) {
-        return res.json();
-      }
-
-      return null;
-    })
-    .then(() => {
-      alert("Session closed successfully");
-      loadLecturerSessions();
-    })
-    .catch((err) => alert(err.message));
-}
-
 // ===============================
 // STUDENT DASHBOARD
 // ===============================
@@ -397,7 +364,7 @@ function renderSession(session) {
         ? `
   <button
     class="btn btn-danger btn-sm mt-2"
-    onclick="closeSession(${session.id})"
+    onclick="closeSession('${session.id}')"
   >
     Close Session
   </button>
@@ -429,4 +396,38 @@ function copySessionCode(code) {
     .catch(() => {
       alert("Failed to copy session code");
     });
+}
+
+function closeSession(sessionId) {
+  console.log("Clicked close for:", sessionId);
+  if (
+    !confirm(
+      "Closing this session will stop students from marking attendance. Continue?"
+    )
+  ) {
+    return;
+  }
+
+  fetch(`${API_BASE}/lecturers/sessions/${sessionId}/close`, {
+    method: "POST",
+    headers: getHeaders(),
+  })
+    .then(async (res) => {
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || "Failed to close session");
+      }
+
+      const contentType = res.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        return res.json();
+      }
+
+      return null;
+    })
+    .then(() => {
+      alert("Session closed successfully");
+      loadLecturerSessions();
+    })
+    .catch((err) => alert(err.message));
 }
