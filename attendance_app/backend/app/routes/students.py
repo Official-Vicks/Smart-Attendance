@@ -32,9 +32,13 @@ def get_my_profile(db: Session = Depends(get_db), current_student: models.Studen
     
     return {
         "id": current_student.id,
+        "full_name": current_student.full_name,
+        "email": current_student.email,
+        "registration_number": current_student.registration_number,
+        "department": current_student.department,
         "profile_image": current_student.profile_image,
-        "school_id": current_student.school_id,
-        "school_name": school.name
+        "school_name": school.name,
+        "school_id": current_student.school_id
     }
 
 # -------------------------

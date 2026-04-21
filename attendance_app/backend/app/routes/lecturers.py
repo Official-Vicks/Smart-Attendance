@@ -28,9 +28,18 @@ router = APIRouter(
 # Get logged-in lecturer profile
 # -------------------------
 @router.get("/me", response_model=schemas.LecturerOut)
-def get_my_profile(current_lecturer=Depends(security.get_current_lecturer)):
-    return current_lecturer
+def get_my_profile(db: Session = Depends(get_db), current_lecturer: models.Lecturer =Depends(security.get_current_lecturer)):
+    school = crud.get_school_by_id(db, current_lecturer.school_id)
 
+    return {
+        "id": current_lecturer.id,
+        "full_name": current_lecturer.full_name,
+        "email": current_lecturer.email,
+        "course": current_lecturer.course,
+        "profile_image": current_lecturer.profile_image,
+        "school_name": school.name,
+        "school_id": current_lecturer.school_id
+    }
 # -------------------------
 # Update lecturer profile
 # -------------------------
