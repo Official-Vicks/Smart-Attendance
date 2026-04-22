@@ -155,11 +155,15 @@ def check_attendance_status(
 
 @router.get("/me", response_model=List[schemas.AttendanceOut])
 def view_my_attendance(
+    date: Optional[date] = None,
+    course_code: Optional[str] = None,
     db: Session = Depends(get_db),
     current_student: models.Student = Depends(security.get_current_student)
 ):
-    return crud.get_attendance_by_student(
+    return crud.get_attendance_by_student_with_filter(
         db=db,
         school_id=current_student.school_id,
-        student_id=current_student.id
+        student_id=current_student.id,
+        date_value=date,
+        course_code=course_code
     )
