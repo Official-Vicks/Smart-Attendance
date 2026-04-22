@@ -212,14 +212,20 @@ def authenticate_student(db: Session, email: str, password: str, school_id:uuid.
 # ----------------------------
 # Attendance CRUD
 # ----------------------------
-def get_attendance_by_student_and_date(db: Session, school_id:uuid.UUID, student_id: uuid.UUID, date_value: date):
-    return (
-        db.query(models.Attendance).join(models.Student)
-        .filter(models.Attendance.student_id == student_id)
-        .filter(models.Attendance.date == date_value)
-        .filter(models.Student.school_id == school_id)
-        .first()
+def get_attendance_by_student_with_filter(db: Session, school_id:uuid.UUID, student_id: uuid.UUID, date_value: Optional[date] = None, course_code: Optional[str] = None):
+
+    query = db.query(models.Attendance).filter(
+        models.Attendance.student_id == student_id,
+        models.Attendance.school_id == school_id
     )
+    
+    if date_value:
+        query = query.filter(models.Attendance.date == date)
+
+    if course_code:
+        query = query.filter(models.Attendance.course_code == course_code)
+    
+    return query.all()
 
 def get_attendance_by_course_and_date(db: Session, school_id:uuid.UUID, course_code: str, date_value: date):
     return (
